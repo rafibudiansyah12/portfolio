@@ -2,6 +2,7 @@ import { AuthTokensSchema, type AuthTokens } from '@portfolio/shared';
 
 const apiBase = import.meta.env.VITE_API_URL ?? 'http://localhost:3001/api/v1';
 export const apiDocsUrl = `${apiBase.replace(/\/api\/v1\/?$/, '')}/api/docs`;
+export const googleLoginUrl = `${apiBase}/auth/google`;
 let accessToken: string | null = null;
 let refreshRequest: Promise<AuthTokens | null> | null = null;
 

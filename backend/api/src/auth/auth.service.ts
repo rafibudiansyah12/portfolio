@@ -40,6 +40,16 @@ export class AuthService {
     return { ...(await this.createAccessResponse(user)), refreshToken };
   }
 
+  async loginWithGoogle(email: string): Promise<AuthTokens & { refreshToken: string }> {
+    const user = await this.prisma.user.findUnique({ where: { email: email.toLowerCase() } });
+    if (!user)
+      throw new UnauthorizedException(
+        'This Google account is not allowed to access the dashboard.',
+      );
+    const refreshToken = await this.createRefreshToken(user.id);
+    return { ...(await this.createAccessResponse(user)), refreshToken };
+  }
+
   async refresh(refreshToken: string): Promise<AuthTokens & { refreshToken: string }> {
     const tokenHash = hashRefreshToken(refreshToken);
     const existing = await this.prisma.refreshToken.findUnique({

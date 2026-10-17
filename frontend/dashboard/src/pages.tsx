@@ -83,7 +83,7 @@ import {
   TextAreaField,
   TextField,
 } from './components/ui';
-import { apiJson, apiQuery, apiRequest, type ApiList } from './lib/api';
+import { apiJson, apiQuery, apiRequest, googleLoginUrl, type ApiList } from './lib/api';
 import { useAuth } from './lib/auth';
 
 type ProjectStatus = 'DRAFT' | 'PUBLISHED' | 'SCHEDULED';
@@ -225,7 +225,11 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [error, setError] = useState('');
+  const [error, setError] = useState(() =>
+    new URLSearchParams(location.search).get('google') === 'error'
+      ? 'Login Google gagal. Pastikan email Google sudah terdaftar sebagai akun dashboard.'
+      : '',
+  );
   const form = useForm<LoginInput>({
     resolver: zodResolver(LoginSchema),
     defaultValues: { email: '', password: '' },
@@ -332,6 +336,12 @@ export function LoginPage() {
             )}
           </Button>
         </form>
+        <div className="login-divider">
+          <span>atau lanjutkan dengan</span>
+        </div>
+        <a className="google-login" href={googleLoginUrl}>
+          <span aria-hidden="true">G</span> Continue with Google
+        </a>
         <div className="login-footnote">
           <span className="online-dot" /> Sesi dilindungi refresh token HTTP-only
         </div>

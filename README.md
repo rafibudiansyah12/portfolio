@@ -15,3 +15,7 @@ Run `docker compose up -d` for PostgreSQL and Redis, then `pnpm install` and `pn
 Feature switches are managed from Dashboard → Pengaturan situs and saved under the API's `features` SiteSetting. Configure `GITHUB_USERNAME` (and optional `GITHUB_TOKEN` for contribution totals) plus `PUBLIC_SITE_URL`, `RESEND_API_KEY`, and `RESEND_FROM_EMAIL` in `backend/api/.env` to enable GitHub and double opt-in email. Guestbook SSE polls approved entries every five seconds; GitHub summaries are cached in the API process for 15 minutes. CV data is formatted on `/[locale]/resume` and uses the browser's Print / Save as PDF dialog.
 
 The Fase 5 Prisma migration is `20261017120000_phase5_features`. Apply it to the configured database with `pnpm --filter @portfolio/api db:migrate:deploy` before using reactions or newsletter confirmation.
+
+## Google dashboard login
+
+Create a Google OAuth client in Google Cloud Console with application type **Web application**. Add the exact API callback URL from `GOOGLE_REDIRECT_URI` to **Authorized redirect URIs** (local default: `http://localhost:3001/api/v1/auth/google/callback`). Put the client ID and secret in `backend/api/.env`, restart the API, and click **Continue with Google** on the dashboard login page. For production, use the deployed API callback URL and set `DASHBOARD_ORIGIN` to the dashboard's exact origin. OAuth access is limited to Google-verified email addresses already present in the `users` table, so seed/create the dashboard account first.

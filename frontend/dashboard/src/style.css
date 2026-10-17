@@ -2162,6 +2162,52 @@ tbody tr:hover td {
   color: var(--text-muted);
   font-size: 8px;
 }
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 17px 0 12px;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+.login-divider::before,
+.login-divider::after {
+  height: 1px;
+  flex: 1;
+  content: '';
+  background: var(--line);
+}
+.google-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  background: var(--surface);
+  font-size: 13px;
+  font-weight: 600;
+  transition:
+    border-color 160ms ease,
+    background 160ms ease;
+}
+.google-login:hover {
+  border-color: var(--accent);
+  background: var(--surface-raised);
+}
+.google-login > span {
+  display: grid;
+  width: 20px;
+  height: 20px;
+  place-items: center;
+  border-radius: 50%;
+  color: #4285f4;
+  background: white;
+  font-weight: 800;
+}
 .form-alert {
   margin-bottom: 0.8rem;
   padding: 0.65rem;
