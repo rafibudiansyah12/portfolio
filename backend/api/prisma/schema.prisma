@@ -1,0 +1,284 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum ProjectStatus {
+  DRAFT
+  PUBLISHED
+  SCHEDULED
+}
+
+enum PostStatus {
+  DRAFT
+  PUBLISHED
+}
+
+enum ExperienceType {
+  WORK
+  ORGANIZATION
+  EDUCATION
+}
+
+enum MediaType {
+  IMAGE
+  DOCUMENT
+  VIDEO
+}
+
+model User {
+  id            String         @id @default(uuid()) @db.Uuid
+  name          String
+  email         String         @unique
+  passwordHash  String
+  role          Role           @default(EDITOR)
+  createdAt     DateTime       @default(now())
+  refreshTokens RefreshToken[]
+  profile       Profile?
+  uploadedMedia Media[]
+  auditLogs     AuditLog[]
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String    @id @default(uuid()) @db.Uuid
+  userId    String    @db.Uuid
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@map("refresh_tokens")
+}
+
+model Profile {
+  id           String  @id @default(uuid()) @db.Uuid
+  userId       String  @unique @db.Uuid
+  headline     String
+  bio          String  @db.Text
+  photoUrl     String?
+  cvUrl        String?
+  location     String?
+  availability Boolean @default(false)
+  socialLinks  Json    @default("{}")
+  user         User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Project {
+  id             String            @id @default(uuid()) @db.Uuid
+  title          String
+  slug           String            @unique
+  summary        String            @db.Text
+  problem        String            @db.Text
+  solution       String            @db.Text
+  result         String            @db.Text
+  thumbnailUrl   String?
+  repoUrl        String?
+  demoUrl        String?
+  featured       Boolean           @default(false)
+  order          Int               @default(0)
+  status         ProjectStatus     @default(DRAFT)
+  publishAt      DateTime?
+  seoTitle       String?
+  seoDescription String?           @db.Text
+  viewCount      Int               @default(0)
+  createdAt      DateTime          @default(now())
+  updatedAt      DateTime          @updatedAt
+  images         ProjectImage[]
+  skills         ProjectSkill[]
+  pageViews      PageView[]
+  reactions      ProjectReaction[]
+
+  @@index([status, publishAt])
+  @@index([featured, order])
+  @@map("projects")
+}
+
+model ProjectImage {
+  id        String  @id @default(uuid()) @db.Uuid
+  projectId String  @db.Uuid
+  mediaId   String  @db.Uuid
+  caption   String?
+  order     Int     @default(0)
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  media     Media   @relation(fields: [mediaId], references: [id], onDelete: Restrict)
+
+  @@index([projectId, order])
+  @@map("project_images")
+}
+
+model Skill {
+  id       String         @id @default(uuid()) @db.Uuid
+  name     String         @unique
+  category String
+  level    Int?
+  icon     String?
+  projects ProjectSkill[]
+
+  @@index([category])
+  @@map("skills")
+}
+
+model ProjectSkill {
+  projectId String  @db.Uuid
+  skillId   String  @db.Uuid
+  project   Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  skill     Skill   @relation(fields: [skillId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, skillId])
+  @@map("project_skills")
+}
+
+model Experience {
+  id           String         @id @default(uuid()) @db.Uuid
+  type         ExperienceType
+  title        String
+  organization String
+  startDate    DateTime
+  endDate      DateTime?
+  description  String         @db.Text
+  order        Int            @default(0)
+
+  @@index([startDate, order])
+  @@map("experiences")
+}
+
+model Post {
+  id          String     @id @default(uuid()) @db.Uuid
+  title       String
+  slug        String     @unique
+  excerpt     String     @db.Text
+  content     String     @db.Text
+  coverUrl    String?
+  status      PostStatus @default(DRAFT)
+  publishedAt DateTime?
+  tags        String[]   @default([])
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([status, publishedAt])
+  @@map("posts")
+}
+
+model Media {
+  id            String         @id @default(uuid()) @db.Uuid
+  url           String
+  publicId      String         @unique
+  type          MediaType
+  size          Int
+  uploadedById  String         @db.Uuid
+  createdAt     DateTime       @default(now())
+  uploadedBy    User           @relation(fields: [uploadedById], references: [id], onDelete: Restrict)
+  projectImages ProjectImage[]
+
+  @@index([uploadedById, createdAt])
+  @@map("media")
+}
+
+model Testimonial {
+  id         String   @id @default(uuid()) @db.Uuid
+  authorName String
+  authorRole String?
+  message    String   @db.Text
+  approved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([approved, createdAt])
+  @@map("testimonials")
+}
+
+model GuestbookEntry {
+  id        String   @id @default(uuid()) @db.Uuid
+  name      String
+  message   String   @db.Text
+  approved  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([approved, createdAt])
+  @@map("guestbook_entries")
+}
+
+model ContactMessage {
+  id         String   @id @default(uuid()) @db.Uuid
+  name       String
+  email      String
+  subject    String
+  message    String   @db.Text
+  isRead     Boolean  @default(false)
+  isArchived Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([isArchived, isRead, createdAt])
+  @@map("contact_messages")
+}
+
+model Subscriber {
+  id                    String    @id @default(uuid()) @db.Uuid
+  email                 String    @unique
+  confirmedAt           DateTime?
+  confirmationTokenHash String?   @unique
+  confirmationExpiresAt DateTime?
+
+  @@map("subscribers")
+}
+
+model ProjectReaction {
+  id        String   @id @default(uuid()) @db.Uuid
+  projectId String   @db.Uuid
+  emoji     String   @db.VarChar(16)
+  count     Int      @default(0)
+  updatedAt DateTime @updatedAt
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, emoji])
+  @@map("project_reactions")
+}
+
+model SiteSetting {
+  key   String @id
+  value Json
+
+  @@map("site_settings")
+}
+
+model PageView {
+  id        String   @id @default(uuid()) @db.Uuid
+  path      String
+  projectId String?  @db.Uuid
+  referrer  String?
+  country   String?
+  createdAt DateTime @default(now())
+  project   Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([projectId, createdAt])
+  @@map("page_views")
+}
+
+model AuditLog {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String?  @db.Uuid
+  action    String
+  entity    String
+  entityId  String?
+  meta      Json     @default("{}")
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([userId, createdAt])
+  @@index([entity, entityId])
+  @@map("audit_logs")
+}

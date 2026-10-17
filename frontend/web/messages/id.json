@@ -1,0 +1,55 @@
+{
+  "nav": {
+    "about": "Tentang",
+    "work": "Karya",
+    "journal": "Jurnal",
+    "contact": "Kontak",
+    "guestbook": "Buku tamu"
+  },
+  "hero": {
+    "eyebrow": "PENGEMBANG WEB · INFORMATIKA",
+    "greeting": "Halo, saya",
+    "name": "Rafi Budiansyah.",
+    "tagline": "Saya merancang dan membangun pengalaman digital yang terasa sederhana, cepat, dan berarti.",
+    "projects": "Jelajahi karya",
+    "contact": "Hubungi saya",
+    "available": "Terbuka untuk peluang baru"
+  },
+  "sections": {
+    "about": "Tentang saya",
+    "skills": "Yang saya kerjakan",
+    "experience": "Perjalanan",
+    "projects": "Proyek pilihan",
+    "blog": "Catatan terbaru",
+    "contact": "Mari berbincang",
+    "guestbook": "Buku tamu"
+  },
+  "about": {
+    "eyebrow": "SEDIKIT TENTANG SAYA",
+    "title": "Rasa ingin tahu, diwujudkan lewat kode.",
+    "fallback": "Saya senang mengubah persoalan yang rumit menjadi produk digital yang jelas dan berguna."
+  },
+  "projects": {
+    "all": "Semua",
+    "search": "Cari proyek…",
+    "empty": "Belum ada proyek pada kategori ini.",
+    "read": "Baca studi kasus"
+  },
+  "contact": {
+    "name": "Nama",
+    "email": "Email",
+    "subject": "Subjek",
+    "message": "Pesan",
+    "send": "Kirim pesan",
+    "success": "Pesan terkirim. Terima kasih sudah menghubungi!",
+    "error": "Pesan belum terkirim. Coba lagi sebentar."
+  },
+  "guestbook": {
+    "name": "Nama",
+    "message": "Tinggalkan pesan singkat",
+    "send": "Kirim untuk dimoderasi",
+    "success": "Terima kasih! Pesanmu akan tampil setelah ditinjau.",
+    "error": "Periksa isian wajib, lalu coba lagi."
+  },
+  "footer": { "made": "Dirancang dan dibangun dengan teliti.", "top": "Kembali ke atas" }
+}
