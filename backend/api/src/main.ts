@@ -1,5 +1,6 @@
 import 'reflect-metadata';
-import 'dotenv/config';
+import dotenv from 'dotenv';
+import { resolve } from 'node:path';
 import cookieParser from 'cookie-parser';
 import helmet from 'helmet';
 import { NestFactory } from '@nestjs/core';
@@ -7,6 +8,11 @@ import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { ApiExceptionFilter } from './common/api-exception.filter';
+
+// Load API-local configuration when started from the monorepo root, then allow
+// root-level variables to fill any values that were not defined locally.
+dotenv.config({ path: resolve(process.cwd(), 'backend/api/.env') });
+dotenv.config({ path: resolve(process.cwd(), '.env') });
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
