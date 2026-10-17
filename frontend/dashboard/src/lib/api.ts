@@ -54,6 +54,13 @@ async function refreshAccessToken(): Promise<AuthTokens | null> {
   return refreshRequest;
 }
 
+/** Restore a browser session through the httpOnly refresh cookie. */
+export async function restoreSession(): Promise<AuthTokens | null> {
+  const tokens = await refreshAccessToken();
+  if (tokens) accessToken = tokens.accessToken;
+  return tokens;
+}
+
 type RequestOptions = RequestInit & { retryAuth?: boolean };
 
 export async function apiRequest<T>(path: string, options: RequestOptions = {}): Promise<T> {

@@ -1,6 +1,6 @@
 import { AuthTokensSchema, type AuthUser, LoginSchema } from '@portfolio/shared';
 import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from 'react';
-import { apiRequest, setAccessToken } from './api';
+import { apiRequest, restoreSession, setAccessToken } from './api';
 
 type AuthContextValue = {
   user: AuthUser | null;
@@ -17,12 +17,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     let active = true;
-    void apiRequest<unknown>('/auth/refresh', { method: 'POST', retryAuth: false })
-      .then((result) => {
-        const parsed = AuthTokensSchema.safeParse(result);
-        if (active && parsed.success) {
-          setAccessToken(parsed.data.accessToken);
-          setUser(parsed.data.user);
+    void restoreSession()
+      .then((session) => {
+        if (active && session) {
+          setAccessToken(session.accessToken);
+          setUser(session.user);
         }
       })
       .catch(() => {
