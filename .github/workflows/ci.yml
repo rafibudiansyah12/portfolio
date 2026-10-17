@@ -17,5 +17,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint
+      - name: Generate Prisma client
+        run: pnpm --filter @portfolio/api db:generate
+        env:
+          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/portfolio
       - run: pnpm typecheck
       - run: pnpm build
