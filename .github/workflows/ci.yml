@@ -6,6 +6,8 @@ on:
 jobs:
   quality:
     runs-on: ubuntu-latest
+    env:
+      DIRECT_URL: postgresql://postgres:postgres@localhost:5432/portfolio
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v4
@@ -19,7 +21,5 @@ jobs:
       - run: pnpm lint
       - name: Generate Prisma client
         run: pnpm --filter @portfolio/api db:generate
-        env:
-          DIRECT_URL: postgresql://postgres:postgres@localhost:5432/portfolio
       - run: pnpm typecheck
       - run: pnpm build
