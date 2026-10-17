@@ -13,7 +13,9 @@
     "tagline": "I design and build digital experiences that feel simple, fast, and meaningful.",
     "projects": "Explore my work",
     "contact": "Get in touch",
-    "available": "Open to new opportunities"
+    "available": "Open to new opportunities",
+    "selectedProject": "Selected project",
+    "recentProject": "Recent project"
   },
   "sections": {
     "about": "About me",

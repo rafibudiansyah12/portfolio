@@ -37,7 +37,7 @@ const fallbackProfile: Profile = {
   photoUrl: null,
   cvUrl: null,
   location: 'Indonesia',
-  availability: true,
+  availability: false,
   socialLinks: {},
 };
 const localeDate = (date: string | null, locale: string) =>
@@ -87,10 +87,17 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
       return groups;
     }, {}),
   );
+  const featuredProject = projects.items.find((project) => project.featured) ?? projects.items[0];
+  const focusSkills = skills
+    .slice(0, 3)
+    .map((skill) => skill.name)
+    .join(' · ');
   return (
     <main>
-      <section className="hero section-shell" id="top">
-        <div className="hero-noise" />
+      <section
+        className={featuredProject ? 'hero section-shell' : 'hero section-shell hero-solo'}
+        id="top"
+      >
         <div className="hero-content">
           <p className="hero-eyebrow">
             <span className="status-dot" />
@@ -98,9 +105,12 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
           </p>
           <p className="hero-greeting">{t('hero.greeting')}</p>
           <h1>
-            {t('hero.name').split(' ').slice(0, -1).join(' ')}
-            <br />
-            <span>{t('hero.name').split(' ').at(-1)}</span>
+            {t('hero.name')
+              .replace(/\.$/, '')
+              .split(' ')
+              .map((name) => (
+                <span key={name}>{name}</span>
+              ))}
           </h1>
           <p className="hero-tagline">{profile.headline || t('hero.tagline')}</p>
           {profile.availability && publicFeatures.openForWork !== false && <AvailabilityBadge />}
@@ -109,7 +119,7 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               {t('hero.projects')} <ArrowDown size={15} />
             </a>
             <a href="#contact" className="button-quiet">
-              {t('hero.contact')} <ArrowUpRight size={15} />
+              {t('hero.contact')}
             </a>
           </div>
           <div className="hero-bottomline">
@@ -117,20 +127,41 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <i />
               {profile.availability ? t('hero.available') : profile.location || 'Indonesia'}
             </span>
-            <span>
-              SCROLL TO EXPLORE <span className="scroll-line" />
-            </span>
           </div>
         </div>
-        <div className="hero-orb orb-one" />
-        <div className="hero-orb orb-two" />
-        <div className="hero-index">
-          PORTFOLIO
-          <br />
-          2026 <span>—</span> ID/EN
-        </div>
+        {featuredProject && (
+          <Link
+            className="hero-project"
+            href={`/projects/${featuredProject.slug}`}
+            locale={locale}
+            aria-label={`${t('projects.read')}: ${featuredProject.title}`}
+          >
+            <span className="hero-project-label">
+              {featuredProject.featured ? t('hero.selectedProject') : t('hero.recentProject')}
+            </span>
+            {featuredProject.thumbnailUrl ? (
+              <img src={featuredProject.thumbnailUrl} alt={`${featuredProject.title} preview`} />
+            ) : (
+              <div className="hero-project-art">
+                <Code2 size={32} aria-hidden="true" />
+                <span>
+                  {featuredProject.skills
+                    .slice(0, 3)
+                    .map(({ skill }) => skill.name)
+                    .join(' · ')}
+                </span>
+              </div>
+            )}
+            <span className="hero-project-caption">
+              <span>
+                <strong>{featuredProject.title}</strong>
+                <small>{featuredProject.summary}</small>
+              </span>
+              <ArrowUpRight size={18} aria-hidden="true" />
+            </span>
+          </Link>
+        )}
       </section>
-
       <section className="section-shell section-block" id="about">
         <div className="section-heading">
           <Reveal>
@@ -164,25 +195,20 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
               <MapPin size={14} /> BASED IN
             </span>
             <strong>{profile.location || 'Indonesia'}</strong>
-            <span className="bento-coordinates">Available worldwide · Remote friendly</span>
           </Reveal>
           <Reveal delay={0.16} className="bento-card bento-focus">
             <span className="bento-label">
               <Code2 size={14} /> CURRENT FOCUS
             </span>
-            <strong>
-              Thoughtful interfaces
-              <br />& reliable systems.
-            </strong>
-            <span className="focus-meter">
-              <i />
-            </span>
+            <strong>{focusSkills || profile.headline}</strong>
           </Reveal>
-          <Reveal delay={0.24} className="bento-card bento-stat">
-            <span className="bento-label">SELECTED WORK</span>
-            <strong>{String(projects.total).padStart(2, '0')}</strong>
-            <span>projects documented</span>
-          </Reveal>
+          {projects.total > 0 && (
+            <Reveal delay={0.24} className="bento-card bento-stat">
+              <span className="bento-label">SELECTED WORK</span>
+              <strong>{String(projects.total).padStart(2, '0')}</strong>
+              <span>projects documented</span>
+            </Reveal>
+          )}
         </div>
       </section>
 
@@ -395,12 +421,11 @@ export default async function HomePage({ params }: { params: Promise<{ locale: s
                   </a>
                 ))}
             </div>
-            <a
-              className="email-link"
-              href={`mailto:${profile.socialLinks?.email ?? 'hello@rafibudiansyah.dev'}`}
-            >
-              {profile.socialLinks?.email ?? 'hello@rafibudiansyah.dev'}
-            </a>
+            {profile.socialLinks?.email && (
+              <a className="email-link" href={`mailto:${profile.socialLinks.email}`}>
+                {profile.socialLinks.email}
+              </a>
+            )}
           </Reveal>
         </div>
         <Reveal delay={0.1} className="contact-panel">

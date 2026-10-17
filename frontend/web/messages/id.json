@@ -13,7 +13,9 @@
     "tagline": "Saya merancang dan membangun pengalaman digital yang terasa sederhana, cepat, dan berarti.",
     "projects": "Jelajahi karya",
     "contact": "Hubungi saya",
-    "available": "Terbuka untuk peluang baru"
+    "available": "Terbuka untuk peluang baru",
+    "selectedProject": "Proyek pilihan",
+    "recentProject": "Proyek terbaru"
   },
   "sections": {
     "about": "Tentang saya",

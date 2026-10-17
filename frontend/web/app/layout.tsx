@@ -1,10 +1,10 @@
-import { DM_Sans, Manrope } from 'next/font/google';
+import { Source_Sans_3, Space_Grotesk } from 'next/font/google';
 import type { Metadata } from 'next';
 import type { ReactNode } from 'react';
 import './styles.css';
 
-const heading = Manrope({ subsets: ['latin'], variable: '--font-heading', display: 'swap' });
-const body = DM_Sans({ subsets: ['latin'], variable: '--font-body', display: 'swap' });
+const heading = Space_Grotesk({ subsets: ['latin'], variable: '--font-heading', display: 'swap' });
+const body = Source_Sans_3({ subsets: ['latin'], variable: '--font-body', display: 'swap' });
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? 'http://localhost:3000'),

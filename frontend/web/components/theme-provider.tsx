@@ -17,15 +17,15 @@ type ThemeContextValue = {
   setAccent: (value: string) => void;
 };
 const ThemeContext = createContext<ThemeContextValue | null>(null);
-const accents = ['#a4f0d1', '#9db5ff', '#f3a6c7', '#ffc184'];
+const accents = ['#168c78', '#4888a8', '#b5684f', '#8a7553'];
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark');
+  const [theme, setTheme] = useState<'dark' | 'light'>('light');
   const [accent, setAccentState] = useState(accents[0]!);
   useEffect(() => {
     const savedTheme = localStorage.getItem('portfolio-theme');
     const savedAccent = localStorage.getItem('portfolio-accent');
-    if (savedTheme === 'light' || savedTheme === 'dark') setTheme(savedTheme);
+    if (savedTheme === 'dark' || savedTheme === 'light') setTheme(savedTheme);
     if (savedAccent && accents.includes(savedAccent)) setAccentState(savedAccent);
   }, []);
   useEffect(() => {
