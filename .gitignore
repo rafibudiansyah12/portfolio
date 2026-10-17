@@ -1,0 +1,13 @@
+node_modules
+.turbo
+dist
+.next
+coverage
+.env
+.env.*
+!.env.example
+backend/api/generated/prisma/
+backend/api/src/generated/prisma/
+*.log
+*.tsbuildinfo
+.DS_Store
