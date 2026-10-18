@@ -1,9 +1,8 @@
 'use client';
 
-import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { usePathname, useRouter } from '../i18n/navigation';
 import { useLocale } from 'next-intl';
-import { useEffect, useState, type MouseEvent as ReactMouseEvent, type ReactNode } from 'react';
+import { useEffect, useState, type MouseEvent as ReactMouseEvent } from 'react';
 import { useTheme } from './theme-provider';
 
 type Props = { features: Record<string, unknown> };
@@ -11,15 +10,13 @@ type Props = { features: Record<string, unknown> };
 export function FeatureEffects({ features }: Props) {
   const [palette, setPalette] = useState(false);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [progress, setProgress] = useState(0);
   const [egg, setEgg] = useState(false);
   const [query, setQuery] = useState('');
   const [projects, setProjects] = useState<Array<{ title: string; slug: string }>>([]);
   const router = useRouter();
   const pathname = usePathname();
   const locale = useLocale();
-  const reduceMotion = useReducedMotion();
-  const { toggleTheme, setAccent } = useTheme();
+  const { toggleTheme } = useTheme();
   const closePalette = (event: ReactMouseEvent<HTMLDivElement>) => {
     if (event.target === event.currentTarget) setPalette(false);
   };
@@ -64,18 +61,15 @@ export function FeatureEffects({ features }: Props) {
         }
       }
     };
-    const onScroll = () => {
-      const max = document.documentElement.scrollHeight - window.innerHeight;
-      setProgress(max > 0 ? window.scrollY / max : 0);
-    };
+    const cursorEnabled = features.customCursor === true;
     const onPointer = (event: PointerEvent) => {
-      if (event.pointerType === 'touch') return;
+      if (!cursorEnabled || event.pointerType === 'touch') return;
       setPosition({ x: event.clientX, y: event.clientY });
       const target =
-        features.customCursor === true && event.target instanceof Element
+        event.target instanceof Element
           ? event.target.closest<HTMLElement>('[data-magnetic], .button-primary, .button-secondary')
           : null;
-      if (target && !reduceMotion) {
+      if (target && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
         const rect = target.getBoundingClientRect();
         target.style.setProperty(
           '--magnetic-x',
@@ -89,25 +83,23 @@ export function FeatureEffects({ features }: Props) {
     };
     const onPointerOut = (event: PointerEvent) => {
       const target =
-        features.customCursor === true &&
-        event.pointerType !== 'touch' &&
-        event.target instanceof Element
+        cursorEnabled && event.pointerType !== 'touch' && event.target instanceof Element
           ? event.target.closest<HTMLElement>('[data-magnetic], .button-primary, .button-secondary')
           : null;
       target?.style.setProperty('--magnetic-x', '0px');
       target?.style.setProperty('--magnetic-y', '0px');
     };
     window.addEventListener('keydown', onKey);
-    window.addEventListener('scroll', onScroll, { passive: true });
-    window.addEventListener('pointermove', onPointer, { passive: true });
-    window.addEventListener('pointerout', onPointerOut);
+    if (cursorEnabled) {
+      window.addEventListener('pointermove', onPointer, { passive: true });
+      window.addEventListener('pointerout', onPointerOut);
+    }
     return () => {
       window.removeEventListener('keydown', onKey);
-      window.removeEventListener('scroll', onScroll);
       window.removeEventListener('pointermove', onPointer);
       window.removeEventListener('pointerout', onPointerOut);
     };
-  }, [features.commandPalette, features.easterEgg, reduceMotion]);
+  }, [features.commandPalette, features.customCursor, features.easterEgg]);
   useEffect(() => {
     if (!palette) return;
     const api = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:3001/api/v1';
@@ -122,14 +114,7 @@ export function FeatureEffects({ features }: Props) {
     label.toLocaleLowerCase().includes(query.trim().toLocaleLowerCase());
   return (
     <>
-      {features.scrollProgress !== false && (
-        <div
-          className="scroll-progress"
-          style={{ transform: `scaleX(${progress})` }}
-          aria-hidden="true"
-        />
-      )}
-      {features.customCursor === true && !reduceMotion && (
+      {features.customCursor === true && (
         <div
           className="custom-cursor"
           style={{ transform: `translate3d(${position.x}px,${position.y}px,0)` }}
@@ -196,38 +181,11 @@ export function FeatureEffects({ features }: Props) {
               >
                 {locale === 'id' ? 'English' : 'Bahasa'}
               </button>
-              <button onClick={() => setAccent('#9db5ff')}>Blue accent</button>
-              <button onClick={() => setAccent('#a4f0d1')}>Mint accent</button>
             </div>
           </section>
         </div>
       )}
     </>
-  );
-}
-
-export function PageTransition({
-  children,
-  enabled = true,
-}: {
-  children: ReactNode;
-  enabled?: boolean;
-}) {
-  const pathname = usePathname();
-  const reduceMotion = useReducedMotion();
-  if (!enabled || reduceMotion) return <>{children}</>;
-  return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={pathname}
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        exit={{ opacity: 0, y: -5 }}
-        transition={{ duration: 0.2, ease: 'easeOut' }}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
   );
 }
 

@@ -42,6 +42,7 @@ export function ContactForm() {
             required
             minLength={2}
             maxLength={100}
+            placeholder="Rafi Budiansyah"
             value={values.name}
             onChange={(event) => setValues({ ...values, name: event.target.value })}
             autoComplete="name"
@@ -52,6 +53,7 @@ export function ContactForm() {
           <input
             required
             type="email"
+            placeholder="nama@email.com"
             value={values.email}
             onChange={(event) => setValues({ ...values, email: event.target.value })}
             autoComplete="email"
@@ -64,6 +66,7 @@ export function ContactForm() {
           required
           minLength={3}
           maxLength={160}
+          placeholder="Diskusi proyek web / kolaborasi"
           value={values.subject}
           onChange={(event) => setValues({ ...values, subject: event.target.value })}
         />
@@ -74,7 +77,8 @@ export function ContactForm() {
           required
           minLength={10}
           maxLength={5000}
-          rows={5}
+          rows={4}
+          placeholder="Ceritakan singkat ide proyek, kebutuhan fitur, atau rencana kolaborasi Anda..."
           value={values.message}
           onChange={(event) => setValues({ ...values, message: event.target.value })}
         />

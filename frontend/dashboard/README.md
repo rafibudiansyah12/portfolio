@@ -13,7 +13,7 @@ pnpm --filter @portfolio/api dev
 pnpm --filter @portfolio/dashboard dev
 ```
 
-Atur `VITE_API_URL` di `frontend/dashboard/.env.local` (default `http://localhost:3001/api/v1`). Pastikan API dan PostgreSQL berjalan, migration sudah diterapkan, dan akun admin telah di-seed. Buka URL Vite yang dicetak di terminal (umumnya `http://localhost:5173`).
+Atur `VITE_API_URL` di `frontend/dashboard/.env.local` (default `http://localhost:3001/api/v1`) dan `VITE_PUBLIC_SITE_URL` untuk tautan kembali dari login (default `http://localhost:3000/id`). Pastikan API dan PostgreSQL berjalan, migration sudah diterapkan, dan akun admin telah di-seed. Buka URL Vite yang dicetak di terminal (umumnya `http://localhost:5173`).
 
 ## Isi dashboard
 

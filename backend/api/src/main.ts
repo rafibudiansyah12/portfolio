@@ -9,10 +9,12 @@ import { Logger as PinoLogger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 import { ApiExceptionFilter } from './common/api-exception.filter';
 
-// Load API-local configuration when started from the monorepo root, then allow
-// root-level variables to fill any values that were not defined locally.
-dotenv.config({ path: resolve(process.cwd(), 'backend/api/.env') });
-dotenv.config({ path: resolve(process.cwd(), '.env') });
+// Support starting the API from either the monorepo root or its package folder.
+// dotenv keeps the first value it finds, so the API-local file takes precedence.
+const workingDirectory = process.cwd();
+dotenv.config({ path: resolve(workingDirectory, 'backend/api/.env') });
+dotenv.config({ path: resolve(workingDirectory, '.env') });
+dotenv.config({ path: resolve(workingDirectory, '../../.env') });
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });

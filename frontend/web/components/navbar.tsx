@@ -1,6 +1,6 @@
 'use client';
 
-import { ArrowUpRight, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
 import { Link, usePathname, useRouter } from '../i18n/navigation';
 import { useState } from 'react';
@@ -13,13 +13,17 @@ export function Navbar() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const items = [
-    { href: '/#about', label: t('about') },
-    { href: '/#projects', label: t('work') },
-    { href: '/#journal', label: t('journal') },
-    { href: '/#guestbook', label: t('guestbook') },
-    { href: '/#contact', label: t('contact') },
+    { href: '/', label: t('home') },
+    { href: '/about', label: t('about') },
+    { href: '/experience', label: t('experience') },
+    { href: '/services', label: t('services') },
+    { href: '/projects', label: t('work') },
+    { href: '/awards', label: t('awards') },
+    { href: '/journal', label: t('journal') },
+    { href: '/contact', label: t('contact') },
   ];
-  const switchLocale = () => router.replace(pathname, { locale: locale === 'id' ? 'en' : 'id' });
+  const switchLocale = (nextLocale: 'id' | 'en') =>
+    router.replace(pathname, { locale: nextLocale });
   return (
     <header className="site-header">
       <Link className="wordmark" href="/" aria-label="Rafi Budiansyah — home">
@@ -29,16 +33,45 @@ export function Navbar() {
         </span>
       </Link>
       <nav className={open ? 'primary-nav open' : 'primary-nav'} aria-label="Main navigation">
-        {items.map(({ href, label }) => (
-          <a key={href} href={href} onClick={() => setOpen(false)}>
-            {label}
-          </a>
-        ))}
+        {items.map(({ href, label }) => {
+          const isActive = href === '/' ? pathname === '/' : pathname.startsWith(href);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={isActive ? 'active' : undefined}
+              onClick={() => setOpen(false)}
+            >
+              {label}
+            </Link>
+          );
+        })}
       </nav>
       <div className="header-actions">
-        <button className="locale-switch" onClick={switchLocale} aria-label="Change language">
-          {locale === 'id' ? 'EN' : 'ID'} <ArrowUpRight size={12} />
-        </button>
+        <div
+          className="language-switch"
+          role="group"
+          aria-label={locale === 'id' ? 'Pilih bahasa' : 'Choose language'}
+        >
+          <button
+            type="button"
+            className={locale === 'id' ? 'active' : ''}
+            aria-label="Bahasa Indonesia"
+            aria-pressed={locale === 'id'}
+            onClick={() => switchLocale('id')}
+          >
+            ID
+          </button>
+          <button
+            type="button"
+            className={locale === 'en' ? 'active' : ''}
+            aria-label="English"
+            aria-pressed={locale === 'en'}
+            onClick={() => switchLocale('en')}
+          >
+            EN
+          </button>
+        </div>
         <ThemeControls />
         <button
           className="menu-toggle"

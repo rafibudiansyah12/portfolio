@@ -592,11 +592,15 @@ export class AdminAnalyticsController {
     const start = new Date();
     start.setUTCHours(0, 0, 0, 0);
     start.setUTCDate(start.getUTCDate() - 29);
-    const views = await this.prisma.pageView.findMany({
-      where: { createdAt: { gte: start } },
-      select: { createdAt: true, project: { select: { title: true, slug: true } } },
-      orderBy: { createdAt: 'asc' },
-    });
+    const [totalViews, views, projectStatuses] = await Promise.all([
+      this.prisma.pageView.count(),
+      this.prisma.pageView.findMany({
+        where: { createdAt: { gte: start } },
+        select: { createdAt: true, project: { select: { title: true, slug: true } } },
+        orderBy: { createdAt: 'asc' },
+      }),
+      this.prisma.project.groupBy({ by: ['status'], _count: { _all: true } }),
+    ]);
     const daily = new Map<string, number>();
     for (let offset = 0; offset < 30; offset++) {
       const day = new Date(start);
@@ -614,9 +618,13 @@ export class AdminAnalyticsController {
       }
     }
     return {
-      totalViews: views.length,
+      totalViews,
       dailyViews: [...daily].map(([date, count]) => ({ date, views: count })),
       projectViews: [...projects.values()].sort((a, b) => b.views - a.views).slice(0, 10),
+      projectStatuses: projectStatuses.map(({ status, _count }) => ({
+        status,
+        count: _count._all,
+      })),
     };
   }
 }

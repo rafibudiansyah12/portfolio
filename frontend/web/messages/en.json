@@ -1,10 +1,14 @@
 {
   "nav": {
+    "home": "Home",
     "about": "About",
-    "work": "Work",
+    "experience": "Experience",
+    "awards": "Awards",
+    "services": "Services",
+    "tools": "Tools",
+    "work": "Projects",
     "journal": "Journal",
-    "contact": "Contact",
-    "guestbook": "Guestbook"
+    "contact": "Contact"
   },
   "hero": {
     "eyebrow": "WEB DEVELOPER · INFORMATICS",
@@ -20,22 +24,33 @@
   "sections": {
     "about": "About me",
     "skills": "What I do",
-    "experience": "The journey",
-    "projects": "Selected work",
+    "tools": "Tools I use",
+    "services": "Services",
+    "experience": "Work & Experience",
+    "awards": "Awards & Certificates",
+    "projects": "Projects",
     "blog": "Recent notes",
     "contact": "Let’s talk",
     "guestbook": "Guestbook"
   },
   "about": {
     "eyebrow": "A LITTLE ABOUT ME",
-    "title": "Curiosity, shaped into code.",
-    "fallback": "I enjoy turning complex problems into clear, useful digital products."
+    "title": "About me",
+    "fallback": "I build practical websites that are easy to use."
+  },
+  "services": {
+    "intro": "Ways I can help with a web project."
+  },
+  "awards": {
+    "intro": "Awards and certificates saved to my profile.",
+    "award": "Award",
+    "certificate": "Certificate",
+    "view": "View document"
   },
   "projects": {
     "all": "All",
     "search": "Search projects…",
-    "empty": "No projects in this category yet.",
-    "read": "Read the case study"
+    "empty": "No projects in this category yet."
   },
   "contact": {
     "name": "Name",

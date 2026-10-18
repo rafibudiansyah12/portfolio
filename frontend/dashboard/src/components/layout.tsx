@@ -1,9 +1,8 @@
-import {
+﻿import {
   Activity,
   BookOpenText,
   BriefcaseBusiness,
   ChevronDown,
-  Command,
   FileText,
   FolderKanban,
   Gauge,
@@ -11,25 +10,27 @@ import {
   LogOut,
   Mail,
   Moon,
+  RefreshCw,
   Settings2,
   Sun,
   UserRound,
   Wrench,
 } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { NavLink, Outlet, useLocation } from 'react-router-dom';
 import { useAuth } from '../lib/auth';
-import { apiDocsUrl } from '../lib/api';
+import { apiDocsUrl, googleLoginUrl } from '../lib/api';
 import { useTheme } from './theme';
 
 const navigation = [
-  { label: 'Ringkasan', to: '/', icon: Gauge, group: 'Workspace' },
+  { label: 'Ringkasan', to: '/', icon: Gauge, group: 'Dashboard' },
   { label: 'Proyek', to: '/projects', icon: FolderKanban, group: 'Konten' },
   { label: 'Keahlian', to: '/skills', icon: Wrench, group: 'Konten' },
   { label: 'Pengalaman', to: '/experiences', icon: BriefcaseBusiness, group: 'Konten' },
   { label: 'Profil', to: '/profile', icon: UserRound, group: 'Konten' },
   { label: 'Blog', to: '/posts', icon: BookOpenText, group: 'Konten' },
-  { label: 'Media', to: '/media', icon: Image, group: 'Workspace' },
-  { label: 'Inbox', to: '/inbox', icon: Mail, group: 'Workspace' },
+  { label: 'Media', to: '/media', icon: Image, group: 'Dashboard' },
+  { label: 'Inbox', to: '/inbox', icon: Mail, group: 'Dashboard' },
   { label: 'Pengaturan', to: '/settings', icon: Settings2, group: 'Situs' },
   { label: 'Audit log', to: '/audit-logs', icon: Activity, group: 'Situs' },
 ];
@@ -40,6 +41,17 @@ export function AppLayout() {
   const { user, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const location = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    if (!menuOpen) return;
+    const close = (event: MouseEvent) => {
+      if (!menuRef.current?.contains(event.target as Node)) setMenuOpen(false);
+    };
+    document.addEventListener('mousedown', close);
+    return () => document.removeEventListener('mousedown', close);
+  }, [menuOpen]);
+  useEffect(() => setMenuOpen(false), [location.pathname]);
   const title = titles.get(location.pathname) ?? 'Portfolio Admin';
   const groups = [...new Set(navigation.map((item) => item.group))];
 
@@ -52,16 +64,8 @@ export function AppLayout() {
             <strong>
               rafi<span>folio</span>
             </strong>
-            <small>STUDIO CONSOLE</small>
+            <small>PANEL PORTOFOLIO</small>
           </div>
-        </div>
-        <div className="workspace-picker">
-          <div className="workspace-avatar">R</div>
-          <div>
-            <strong>Personal workspace</strong>
-            <small>Portfolio utama</small>
-          </div>
-          <ChevronDown size={15} />
         </div>
         <nav className="side-nav" aria-label="Navigasi dashboard">
           {groups.map((group) => (
@@ -78,38 +82,76 @@ export function AppLayout() {
                   >
                     <Icon size={17} strokeWidth={1.8} />
                     <span>{label}</span>
-                    {label === 'Inbox' && <i className="nav-dot" />}
                   </NavLink>
                 ))}
             </div>
           ))}
         </nav>
         <div className="sidebar-bottom">
-          <div className="sidebar-status">
-            <span className="online-dot" />
-            API workspace<span className="status-mini">LIVE</span>
+          <div className="sidebar-status">Panel pengelolaan</div>
+          <div className="profile-menu-wrap" ref={menuRef}>
+            {menuOpen && (
+              <div className="profile-menu" role="menu">
+                <NavLink
+                  to="/profile"
+                  className="profile-menu-item"
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <UserRound size={15} /> Profil &amp; akun
+                </NavLink>
+                <a className="profile-menu-item" role="menuitem" href={googleLoginUrl}>
+                  <RefreshCw size={15} /> Ganti akun Google
+                </a>
+                <NavLink
+                  to="/settings"
+                  className="profile-menu-item"
+                  role="menuitem"
+                  onClick={() => setMenuOpen(false)}
+                >
+                  <Settings2 size={15} /> Pengaturan
+                </NavLink>
+                <button
+                  className="profile-menu-item"
+                  role="menuitem"
+                  onClick={() => void toggleTheme()}
+                >
+                  {theme === 'dark' ? <Sun size={15} /> : <Moon size={15} />} Ganti tema
+                </button>
+                <span className="profile-menu-divider" />
+                <button
+                  className="profile-menu-item danger"
+                  role="menuitem"
+                  onClick={() => void logout()}
+                >
+                  <LogOut size={15} /> Keluar
+                </button>
+              </div>
+            )}
+            <button
+              className="profile-switch"
+              aria-haspopup="menu"
+              aria-expanded={menuOpen}
+              onClick={() => setMenuOpen((open) => !open)}
+            >
+              <span className="avatar-small">{user?.name.slice(0, 1).toUpperCase() ?? 'R'}</span>
+              <span className="profile-switch-copy">
+                <strong>{user?.name ?? 'Administrator'}</strong>
+                <small>{user?.email ?? 'admin@portfolio.dev'}</small>
+              </span>
+              <ChevronDown size={15} className={menuOpen ? 'chevron-open' : ''} />
+            </button>
           </div>
-          <button className="profile-switch">
-            <span className="avatar-small">{user?.name.slice(0, 1).toUpperCase() ?? 'R'}</span>
-            <span className="profile-switch-copy">
-              <strong>{user?.name ?? 'Administrator'}</strong>
-              <small>{user?.email ?? 'admin@portfolio.dev'}</small>
-            </span>
-            <ChevronDown size={15} />
-          </button>
         </div>
       </aside>
       <div className="main-column">
         <header className="topbar">
           <div className="breadcrumb">
-            <span>Workspace</span>
+            <span>Dashboard</span>
             <span className="breadcrumb-separator">/</span>
             <strong>{title}</strong>
           </div>
           <div className="topbar-actions">
-            <span className="keyboard-hint">
-              <Command size={13} /> K
-            </span>
             <button
               className="topbar-button"
               title="Ganti tema"
@@ -138,11 +180,9 @@ export function AppLayout() {
           <Outlet />
         </main>
         <footer className="app-footer">
+          <span>Rafi Folio / Panel pengelolaan</span>
           <span>
-            Portfolio Studio <b>·</b> Content workspace
-          </span>
-          <span>
-            Connected to <strong>portfolio API</strong>
+            Data tersimpan melalui <strong>API portofolio</strong>
           </span>
         </footer>
       </div>

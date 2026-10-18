@@ -1,21 +1,19 @@
-import { ArrowUpRight } from 'lucide-react';
-import { getTranslations } from 'next-intl/server';
-import { Link } from '../i18n/navigation';
+﻿import { Link } from '../i18n/navigation';
 
-export async function SiteFooter({ locale }: { locale: 'id' | 'en' }) {
-  const t = await getTranslations('footer');
+export function SiteFooter({ locale }: { locale: 'id' | 'en' }) {
+  const id = locale === 'id';
   return (
     <footer className="site-footer section-shell">
-      <span>
-        <Link className="footer-brand" href="/" locale={locale}>
-          R.
-        </Link>{' '}
-        <span>© {new Date().getFullYear()} Rafi Budiansyah</span>
-      </span>
-      <span>{t('made')}</span>
-      <a href="#top">
-        {t('top')} <ArrowUpRight size={13} />
-      </a>
+      <div className="footer-line">
+        <Link className="footer-brand" href="/" locale={locale} aria-label="Home">
+          r.
+        </Link>
+        <p>
+          © {new Date().getFullYear()} <strong>Rafi Budiansyah</strong>
+          <span aria-hidden="true"> · </span>
+          {id ? 'Hak cipta dilindungi.' : 'All rights reserved.'}
+        </p>
+      </div>
     </footer>
   );
 }

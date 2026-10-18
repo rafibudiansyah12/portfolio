@@ -1,36 +1,48 @@
 'use client';
 
-import { Search, ArrowUpRight, ArrowRight } from 'lucide-react';
+import { Eye, GitBranch, Globe, Search } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { Link } from '../i18n/navigation';
 import { useMemo, useState } from 'react';
 import type { Project } from '../app/lib/api';
 import { Reveal } from './motion';
 
+function projectCategories(project: Project, locale: string) {
+  const skillCategories = [...new Set(project.skills.map(({ skill }) => skill.category))];
+  if (skillCategories.length > 0) return skillCategories;
+
+  const text = `${project.title} ${project.summary}`.toLowerCase();
+  if (/dashboard|admin|analytics|inventaris|inventory/.test(text)) return ['Dashboard'];
+  if (/ui\/?ux|figma|design|desain/.test(text)) {
+    return [locale === 'id' ? 'Desain' : 'Design'];
+  }
+  if (/mobile|aplikasi|application|\bapp\b/.test(text)) {
+    return [locale === 'id' ? 'Aplikasi' : 'App'];
+  }
+  if (/website|\bweb\b|landing|katalog|catalog/.test(text)) return ['Website'];
+  return [locale === 'id' ? 'Lainnya' : 'Other'];
+}
+
 export function ProjectsBrowser({ projects, locale }: { projects: Project[]; locale: string }) {
   const t = useTranslations('projects');
   const [category, setCategory] = useState('all');
   const [search, setSearch] = useState('');
   const categories = useMemo(
-    () =>
-      [
-        ...new Set(
-          projects.flatMap((project) => project.skills.map(({ skill }) => skill.category)),
-        ),
-      ].sort(),
-    [projects],
+    () => [...new Set(projects.flatMap((project) => projectCategories(project, locale)))].sort(),
+    [projects, locale],
   );
   const filtered = useMemo(
     () =>
       projects.filter(
         (project) =>
-          (category === 'all' || project.skills.some(({ skill }) => skill.category === category)) &&
-          `${project.title} ${project.summary} ${project.skills.map(({ skill }) => skill.name).join(' ')}`
+          (category === 'all' || projectCategories(project, locale).includes(category)) &&
+          `${project.title} ${project.summary} ${project.client ?? ''} ${project.skills.map(({ skill }) => skill.name).join(' ')}`
             .toLowerCase()
             .includes(search.toLowerCase()),
       ),
-    [projects, category, search],
+    [projects, category, locale, search],
   );
+
   return (
     <>
       <div className="project-controls">
@@ -62,59 +74,67 @@ export function ProjectsBrowser({ projects, locale }: { projects: Project[]; loc
         </label>
       </div>
       {filtered.length ? (
-        <div className="project-grid">
+        <div className="project-grid project-grid-simple">
           {filtered.map((project, index) => (
-            <Reveal key={project.id} delay={Math.min(index % 3, 2) * 0.08}>
-              <article className="project-card">
-                <Link href={`/projects/${project.slug}`} locale={locale} className="project-visual">
-                  {project.thumbnailUrl ? (
-                    <img
-                      src={project.thumbnailUrl}
-                      alt={`${project.title} project preview`}
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className={`project-art art-${index % 4}`}>
-                      <span className="art-orbit" />
-                      <span className="art-code">
-                        {project.skills
-                          .slice(0, 3)
-                          .map(({ skill }) => skill.name)
-                          .join(' / ') || 'SELECTED WORK'}
-                      </span>
-                      <span className="art-index">0{index + 1}</span>
-                    </div>
-                  )}
-                  <span className="project-open">
-                    <ArrowUpRight size={18} />
-                  </span>
-                </Link>
-                <div className="project-meta">
-                  <div>
-                    <span className="project-kicker">
-                      {project.featured ? 'FEATURED CASE STUDY' : 'PROJECT'}
-                    </span>
-                    <h3>
-                      <Link href={`/projects/${project.slug}`} locale={locale}>
-                        {project.title}
-                      </Link>
-                    </h3>
-                    <p>{project.summary}</p>
+            <Reveal key={project.id} delay={Math.min(index % 3, 2) * 0.06}>
+              <article className="project-card project-card-simple">
+                {project.thumbnailUrl ? (
+                  <img
+                    className="project-simple-thumbnail"
+                    src={project.thumbnailUrl}
+                    alt={`${project.title} thumbnail`}
+                    loading="lazy"
+                  />
+                ) : (
+                  <div
+                    className="project-simple-thumbnail project-simple-thumbnail-fallback"
+                    aria-hidden="true"
+                  >
+                    <span>{projectCategories(project, locale)[0]}</span>
                   </div>
+                )}
+                <div className="project-simple-top">
+                  <span className="project-category-pill">
+                    {projectCategories(project, locale)[0]}
+                  </span>
+                  <strong className="project-simple-client">
+                    {project.client || (locale === 'id' ? 'Belum dicantumkan' : 'Not specified')}
+                  </strong>
+                </div>
+                <h3>{project.title}</h3>
+                <p className="project-simple-summary">{project.summary}</p>
+                <nav className="project-simple-actions" aria-label={`${project.title} links`}>
                   <Link
-                    className="project-arrow"
                     href={`/projects/${project.slug}`}
                     locale={locale}
-                    aria-label={`${t('read')}: ${project.title}`}
+                    aria-label={`${locale === 'id' ? 'Lihat detail' : 'View details'}: ${project.title}`}
+                    title={locale === 'id' ? 'Lihat detail' : 'View details'}
                   >
-                    <ArrowRight size={17} />
+                    <Eye size={16} aria-hidden="true" />
                   </Link>
-                </div>
-                <div className="project-tags">
-                  {project.skills.slice(0, 4).map(({ skill }) => (
-                    <span key={skill.id}>{skill.name}</span>
-                  ))}
-                </div>
+                  {project.demoUrl && (
+                    <a
+                      href={project.demoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`${locale === 'id' ? 'Buka website' : 'Open website'}: ${project.title}`}
+                      title={locale === 'id' ? 'Buka website' : 'Open website'}
+                    >
+                      <Globe size={16} aria-hidden="true" />
+                    </a>
+                  )}
+                  {project.repoUrl && (
+                    <a
+                      href={project.repoUrl}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`GitHub: ${project.title}`}
+                      title="GitHub"
+                    >
+                      <GitBranch size={16} aria-hidden="true" />
+                    </a>
+                  )}
+                </nav>
               </article>
             </Reveal>
           ))}

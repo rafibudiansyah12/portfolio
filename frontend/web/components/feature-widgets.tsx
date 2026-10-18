@@ -177,10 +177,10 @@ export function NewsletterForm() {
   );
 }
 
-export function AvailabilityBadge() {
+export function AvailabilityBadge({ locale = 'en' }: { locale?: string }) {
   return (
     <span className="availability-badge">
-      <i /> Open for work
+      <i /> {locale === 'id' ? 'Tersedia untuk peluang' : 'Open for work'}
     </span>
   );
 }

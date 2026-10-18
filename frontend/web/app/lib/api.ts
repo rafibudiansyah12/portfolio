@@ -23,6 +23,7 @@ export type Project = {
   title: string;
   slug: string;
   summary: string;
+  client: string | null;
   problem: string;
   solution: string;
   result: string;

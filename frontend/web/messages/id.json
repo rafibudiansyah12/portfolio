@@ -1,10 +1,14 @@
 {
   "nav": {
+    "home": "Beranda",
     "about": "Tentang",
-    "work": "Karya",
+    "experience": "Work & Experience",
+    "awards": "Awards & Certificates",
+    "services": "Layanan",
+    "tools": "Tools",
+    "work": "Proyek",
     "journal": "Jurnal",
-    "contact": "Kontak",
-    "guestbook": "Buku tamu"
+    "contact": "Kontak"
   },
   "hero": {
     "eyebrow": "PENGEMBANG WEB · INFORMATIKA",
@@ -20,22 +24,33 @@
   "sections": {
     "about": "Tentang saya",
     "skills": "Yang saya kerjakan",
-    "experience": "Perjalanan",
-    "projects": "Proyek pilihan",
+    "tools": "Tools yang saya gunakan",
+    "services": "Layanan",
+    "experience": "Work & Experience",
+    "awards": "Awards & Certificates",
+    "projects": "Proyek",
     "blog": "Catatan terbaru",
     "contact": "Mari berbincang",
     "guestbook": "Buku tamu"
   },
   "about": {
     "eyebrow": "SEDIKIT TENTANG SAYA",
-    "title": "Rasa ingin tahu, diwujudkan lewat kode.",
-    "fallback": "Saya senang mengubah persoalan yang rumit menjadi produk digital yang jelas dan berguna."
+    "title": "Tentang saya",
+    "fallback": "Saya membangun website yang praktis dan mudah digunakan."
+  },
+  "services": {
+    "intro": "Layanan yang bisa saya bantu untuk proyek web."
+  },
+  "awards": {
+    "intro": "Penghargaan dan sertifikat yang tersimpan di profil saya.",
+    "award": "Penghargaan",
+    "certificate": "Sertifikat",
+    "view": "Lihat dokumen"
   },
   "projects": {
     "all": "Semua",
     "search": "Cari proyek…",
-    "empty": "Belum ada proyek pada kategori ini.",
-    "read": "Baca studi kasus"
+    "empty": "Belum ada proyek pada kategori ini."
   },
   "contact": {
     "name": "Nama",

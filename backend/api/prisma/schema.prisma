@@ -82,6 +82,7 @@ model Project {
   title          String
   slug           String            @unique
   summary        String            @db.Text
+  client         String?
   problem        String            @db.Text
   solution       String            @db.Text
   result         String            @db.Text

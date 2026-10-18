@@ -11,7 +11,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { createColumnHelper, type ColumnDef } from '@tanstack/react-table';
 import {
   Activity,
-  ArrowUpRight,
+  ArrowLeft,
   BarChart3,
   ChevronRight,
   Clock3,
@@ -40,7 +40,7 @@ import {
 } from 'lucide-react';
 import { useMemo, useState, type CSSProperties, type ReactNode } from 'react';
 import { useForm } from 'react-hook-form';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import {
   ExperienceInputSchema,
@@ -87,11 +87,17 @@ import { apiJson, apiQuery, apiRequest, googleLoginUrl, type ApiList } from './l
 import { useAuth } from './lib/auth';
 
 type ProjectStatus = 'DRAFT' | 'PUBLISHED' | 'SCHEDULED';
+const projectStatusLabels = {
+  PUBLISHED: { label: 'Terbit', tone: 'green' },
+  SCHEDULED: { label: 'Terjadwal', tone: 'amber' },
+  DRAFT: { label: 'Draf', tone: 'neutral' },
+} satisfies Record<ProjectStatus, { label: string; tone: 'green' | 'amber' | 'neutral' }>;
 type ProjectRow = {
   id: string;
   title: string;
   slug: string;
   summary: string;
+  client: string | null;
   problem: string;
   solution: string;
   result: string;
@@ -225,6 +231,7 @@ export function LoginPage() {
   const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const publicHomeUrl = import.meta.env.VITE_PUBLIC_SITE_URL ?? 'http://localhost:3000/id';
   const [error, setError] = useState(() =>
     new URLSearchParams(location.search).get('google') === 'error'
       ? 'Login Google gagal. Pastikan email Google sudah terdaftar sebagai akun dashboard.'
@@ -251,8 +258,6 @@ export function LoginPage() {
   });
   return (
     <main className="login-screen">
-      <div className="login-orbit login-orbit-one" />
-      <div className="login-orbit login-orbit-two" />
       <div className="login-aside">
         <div className="brand-lockup">
           <div className="brand-mark">r.</div>
@@ -260,91 +265,80 @@ export function LoginPage() {
             <strong>
               rafi<span>folio</span>
             </strong>
-            <small>STUDIO CONSOLE</small>
+            <small>RUANG KERJA PORTOFOLIO</small>
           </div>
         </div>
         <div className="login-message">
-          <div className="hero-kicker">
-            <span className="pulse-dot" /> WORKSPACE / 01
-          </div>
-          <h1>
-            Every detail
-            <br />
-            has a <em>story.</em>
-          </h1>
-          <p>Satu ruang untuk membentuk cerita di balik setiap proyek, pengalaman, dan ide.</p>
-          <div className="login-quote">
-            <span>“</span>
-            <p>
-              Build with intention.
-              <br />
-              Share with clarity.
-            </p>
+          <p className="login-intro-label">Panel pengelolaan</p>
+          <h1>Ruang untuk merawat setiap karya.</h1>
+          <p>Perbarui proyek, pengalaman, dan cerita yang ingin kamu bagikan.</p>
+          <div className="login-monogram" aria-hidden="true">
+            r.
           </div>
         </div>
-        <span className="login-aside-footer">
-          PERSONAL PORTFOLIO SYSTEM <b>·</b> 2026
-        </span>
+        <span className="login-aside-footer">PORTOFOLIO PERSONAL / RAFI BUDIANSYAH</span>
       </div>
-      <section className="login-card">
-        <div className="login-card-top">
-          <span className="login-icon">
-            <LockKeyhole size={18} />
-          </span>
-          <span className="secure-label">
-            <ShieldCheck size={14} /> SECURE ACCESS
-          </span>
-        </div>
-        <p className="eyebrow">ADMINISTRATOR</p>
-        <h2>Masuk ke workspace</h2>
-        <p className="login-hint">Gunakan akun admin portfolio untuk melanjutkan.</p>
-        {error && (
-          <div className="form-alert" role="alert">
-            {error}
+      <section className="login-main">
+        <header className="login-main-header">
+          <a className="login-back-link" href={publicHomeUrl}>
+            <ArrowLeft size={16} /> Kembali ke halaman utama
+          </a>
+        </header>
+        <div className="login-card">
+          <div className="login-card-top">
+            <span className="login-icon">
+              <LockKeyhole size={18} />
+            </span>
+            <span className="secure-label">
+              <ShieldCheck size={14} /> AKSES ADMIN
+            </span>
           </div>
-        )}
-        <form onSubmit={(event) => void submit(event)} className="login-form">
-          <TextField
-            label="Email"
-            type="email"
-            autoComplete="username"
-            placeholder="nama@email.com"
-            {...form.register('email')}
-          />
-          <TextField
-            label="Password"
-            type="password"
-            autoComplete="current-password"
-            placeholder="Masukkan password"
-            {...form.register('password')}
-          />
-          <div className="login-meta">
-            <label className="remember-control">
-              <input type="checkbox" /> <span>Ingat perangkat ini</span>
-            </label>
-            <span>Access terenkripsi</span>
+          <p className="eyebrow">SELAMAT DATANG</p>
+          <h2>Masuk ke dashboard</h2>
+          <p className="login-hint">Gunakan akun admin untuk mengelola portofolio.</p>
+          {error && (
+            <div className="form-alert" role="alert">
+              {error}
+            </div>
+          )}
+          <form onSubmit={(event) => void submit(event)} className="login-form">
+            <TextField
+              label="Email"
+              type="email"
+              autoComplete="username"
+              placeholder="nama@email.com"
+              {...form.register('email')}
+            />
+            <TextField
+              label="Password"
+              type="password"
+              autoComplete="current-password"
+              placeholder="Masukkan password"
+              {...form.register('password')}
+            />
+            <Button className="login-submit" disabled={form.formState.isSubmitting}>
+              {form.formState.isSubmitting ? (
+                <>
+                  <LoaderCircle className="spin" size={17} /> Memeriksa akun...
+                </>
+              ) : (
+                <>
+                  Masuk <ChevronRight size={17} />
+                </>
+              )}
+            </Button>
+          </form>
+          <div className="login-divider">
+            <span>atau masuk dengan</span>
           </div>
-          <Button className="login-submit" disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? (
-              <>
-                <LoaderCircle className="spin" size={17} /> Memverifikasi…
-              </>
-            ) : (
-              <>
-                Masuk ke dashboard <ChevronRight size={17} />
-              </>
-            )}
-          </Button>
-        </form>
-        <div className="login-divider">
-          <span>atau lanjutkan dengan</span>
+          <a className="google-login" href={googleLoginUrl}>
+            <span aria-hidden="true">G</span> Lanjutkan dengan Google
+          </a>
+          <div className="login-footnote">
+            <span className="online-dot" /> Sesi admin terlindungi
+          </div>
         </div>
-        <a className="google-login" href={googleLoginUrl}>
-          <span aria-hidden="true">G</span> Continue with Google
-        </a>
-        <div className="login-footnote">
-          <span className="online-dot" /> Sesi dilindungi refresh token HTTP-only
-        </div>
+        <p className="login-main-footer">Gunakan akun yang terdaftar sebagai administrator.</p>
       </section>
     </main>
   );
@@ -355,15 +349,13 @@ function StatCard({
   value,
   note,
   icon: Icon,
-  color = 'mint',
-  trend,
+  color = 'blue',
 }: {
   label: string;
   value: string | number;
   note: string;
   icon: LucideIcon;
   color?: string;
-  trend?: string;
 }) {
   return (
     <div className="stat-card">
@@ -371,11 +363,6 @@ function StatCard({
         <span className={`stat-icon ${color}`}>
           <Icon size={17} />
         </span>
-        {trend && (
-          <span className="stat-trend">
-            <ArrowUpRight size={13} /> {trend}
-          </span>
-        )}
       </div>
       <span className="stat-label">{label}</span>
       <strong className="stat-value">{value}</strong>
@@ -392,6 +379,7 @@ export function OverviewPage() {
         totalViews: number;
         dailyViews: Array<{ date: string; views: number }>;
         projectViews: Array<{ title: string; slug: string; views: number }>;
+        projectStatuses: Array<{ status: ProjectStatus; count: number }>;
       }>('/admin/analytics'),
     refetchInterval: 60_000,
   });
@@ -405,6 +393,8 @@ export function OverviewPage() {
   });
   const allRows = projects.data?.items ?? [];
   const totalViews = analytics.data?.totalViews ?? 0;
+  const recentViews =
+    analytics.data?.dailyViews.reduce((total, item) => total + item.views, 0) ?? 0;
   const chartData =
     analytics.data?.dailyViews.map((item) => ({
       date: new Intl.DateTimeFormat('id-ID', {
@@ -415,6 +405,26 @@ export function OverviewPage() {
       views: item.views,
     })) ?? [];
   const recent = allRows.slice(0, 5);
+  const hasRecentViews = chartData.some((item) => item.views > 0);
+  const postRows = posts.data?.items ?? [];
+  const skillRows = skills.data?.items ?? [];
+  const topProjects = [...(analytics.data?.projectViews ?? [])]
+    .sort((a, b) => b.views - a.views)
+    .slice(0, 5);
+  const maxTopViews = Math.max(1, ...topProjects.map((item) => item.views));
+  const skillGroups = Object.entries(
+    skillRows.reduce<Record<string, number>>((acc, row) => {
+      acc[row.category] = (acc[row.category] ?? 0) + 1;
+      return acc;
+    }, {}),
+  ).sort((a, b) => b[1] - a[1]);
+  const statusCounts = new Map(
+    (analytics.data?.projectStatuses ?? []).map(({ status, count }) => [status, count]),
+  );
+  const statusBreakdown = (Object.keys(projectStatusLabels) as ProjectStatus[]).map((status) => ({
+    ...projectStatusLabels[status],
+    count: statusCounts.get(status) ?? 0,
+  }));
   const projectColumns = useMemo(() => {
     const column = createColumnHelper<ProjectRow>();
     return [
@@ -424,19 +434,10 @@ export function OverviewPage() {
       }),
       column.accessor('status', {
         header: 'Status',
-        cell: (info) => (
-          <StatusPill
-            tone={
-              info.getValue() === 'PUBLISHED'
-                ? 'green'
-                : info.getValue() === 'SCHEDULED'
-                  ? 'amber'
-                  : 'neutral'
-            }
-          >
-            {info.getValue()}
-          </StatusPill>
-        ),
+        cell: (info) => {
+          const status = projectStatusLabels[info.getValue()];
+          return <StatusPill tone={status.tone}>{status.label}</StatusPill>;
+        },
       }),
       column.accessor('viewCount', {
         header: 'Views',
@@ -447,20 +448,18 @@ export function OverviewPage() {
     ];
   }, []);
   const error = projects.error ?? skills.error ?? posts.error ?? messages.error ?? analytics.error;
-  if (
+  const loadingAny =
     projects.isLoading ||
     skills.isLoading ||
     posts.isLoading ||
     messages.isLoading ||
-    analytics.isLoading
-  )
-    return <LoadingState />;
+    analytics.isLoading;
+  if (loadingAny) return <LoadingState label="Memuat ringkasan dashboard..." />;
   return (
-    <>
+    <div className="overview-page">
       <PageHeader
-        eyebrow="OVERVIEW / 01"
         title="Ringkasan"
-        description="Selamat datang kembali. Ini yang terjadi di portfolio kamu."
+        description="Pantau konten, kunjungan, dan pesan situsmu dari satu tempat."
         action={
           <span className="date-chip">
             <Clock3 size={14} />{' '}
@@ -472,52 +471,71 @@ export function OverviewPage() {
       <div className="stats-grid">
         <StatCard
           label="Total proyek"
-          value={projects.data?.total ?? 0}
-          note="Semua status konten"
+          value={projects.error ? '-' : (projects.data?.total ?? 0)}
+          note={projects.error ? 'Gagal memuat proyek' : 'Semua status'}
           icon={FolderKanban}
-          trend="Content"
         />
         <StatCard
-          label="Total project views"
-          value={totalViews.toLocaleString('id-ID')}
-          note="Akumulasi seluruh proyek"
+          label="Total view halaman"
+          value={analytics.error ? '-' : totalViews.toLocaleString('id-ID')}
+          note={analytics.error ? 'Gagal memuat analitik' : 'Sejak penghitung aktif'}
           icon={Eye}
           color="blue"
         />
         <StatCard
-          label="Skill terdata"
-          value={skills.data?.total ?? 0}
-          note="Keahlian di portfolio"
-          icon={Wrench}
+          label="Total artikel"
+          value={posts.error ? '-' : (posts.data?.total ?? 0)}
+          note={posts.error ? 'Gagal memuat artikel' : 'Semua status'}
+          icon={FileText}
           color="violet"
         />
         <StatCard
-          label="Pesan belum dibaca"
-          value={messages.data?.unread ?? 0}
-          note="Perlu ditinjau"
-          icon={Inbox}
-          color="amber"
+          label="Total pesan"
+          value={messages.error ? '-' : (messages.data?.total ?? 0)}
+          note={
+            messages.error ? 'Gagal memuat pesan' : `${messages.data?.unread ?? 0} belum dibaca`
+          }
+          icon={Mail}
+          color="cyan"
         />
+      </div>
+      <div className="quick-actions">
+        {[
+          { label: 'Proyek baru', to: '/projects', icon: FolderKanban },
+          { label: 'Tulis artikel', to: '/posts', icon: FileText },
+          { label: 'Tambah keahlian', to: '/skills', icon: Wrench },
+          { label: 'Unggah media', to: '/media', icon: ImagePlus },
+          { label: 'Buka inbox', to: '/inbox', icon: Inbox },
+        ].map(({ label, to, icon: Icon }) => (
+          <Link className="quick-action" to={to} key={to}>
+            <span className="quick-action-icon">
+              <Icon size={16} />
+            </span>
+            {label}
+            <ChevronRight size={14} />
+          </Link>
+        ))}
       </div>
       <div className="overview-grid">
         <Panel title="Views 30 hari terakhir" subtitle="Kunjungan anonim yang tercatat per hari">
           <div className="chart-summary">
-            <strong>{totalViews.toLocaleString('id-ID')}</strong>
-            <span>
-              total views tercatat{' '}
-              <span className="trend-up">
-                <ArrowUpRight size={13} /> 30 hari
-              </span>
-            </span>
+            <strong>{analytics.error ? '-' : recentViews.toLocaleString('id-ID')}</strong>
+            <span>views dalam 30 hari</span>
           </div>
           <div className="chart-area">
-            {chartData.length ? (
+            {analytics.error ? (
+              <EmptyState
+                icon={<BarChart3 size={20} />}
+                title="Analitik gagal dimuat"
+                description="Coba muat ulang halaman untuk melihat data kunjungan."
+              />
+            ) : hasRecentViews ? (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={chartData} margin={{ top: 12, right: 8, left: -18, bottom: 0 }}>
                   <defs>
                     <linearGradient id="viewFill" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#86e4ca" stopOpacity={0.27} />
-                      <stop offset="96%" stopColor="#86e4ca" stopOpacity={0} />
+                      <stop offset="0%" stopColor="var(--accent)" stopOpacity={0.27} />
+                      <stop offset="96%" stopColor="var(--accent)" stopOpacity={0} />
                     </linearGradient>
                   </defs>
                   <CartesianGrid
@@ -548,10 +566,10 @@ export function OverviewPage() {
                   <Area
                     type="monotone"
                     dataKey="views"
-                    stroke="#74d6ba"
+                    stroke="var(--accent)"
                     strokeWidth={2.5}
                     fill="url(#viewFill)"
-                    activeDot={{ r: 5, fill: '#74d6ba', stroke: 'var(--surface)' }}
+                    activeDot={{ r: 5, fill: 'var(--accent)', stroke: 'var(--surface)' }}
                   />
                 </AreaChart>
               </ResponsiveContainer>
@@ -559,13 +577,13 @@ export function OverviewPage() {
               <EmptyState
                 icon={<BarChart3 size={20} />}
                 title="Belum ada data views"
-                description="Grafik akan terisi saat proyek mulai dikunjungi."
+                description="Grafik akan terisi saat halaman situs mulai dikunjungi."
               />
             )}
           </div>
           <div className="chart-caption">
             <span>
-              <i className="legend-dot" /> Project views
+              <i className="legend-dot" /> View halaman
             </span>
             <span>Data anonim dari API portfolio</span>
           </div>
@@ -574,9 +592,9 @@ export function OverviewPage() {
           title="Aktivitas terbaru"
           subtitle="Pesan masuk terbaru"
           action={
-            <a className="text-link" href="/inbox">
+            <Link className="text-link" to="/inbox">
               Lihat inbox <ChevronRight size={14} />
-            </a>
+            </Link>
           }
         >
           <div className="activity-list">
@@ -595,8 +613,12 @@ export function OverviewPage() {
             {!messages.data?.items.length && (
               <EmptyState
                 icon={<Mail size={19} />}
-                title="Inbox masih kosong"
-                description="Pesan dari formulir kontak akan tampil di sini."
+                title={messages.error ? 'Pesan gagal dimuat' : 'Inbox masih kosong'}
+                description={
+                  messages.error
+                    ? 'Coba muat ulang halaman untuk melihat pesan terbaru.'
+                    : 'Pesan dari formulir kontak akan tampil di sini.'
+                }
               />
             )}
           </div>
@@ -606,35 +628,153 @@ export function OverviewPage() {
         title="Proyek terbaru"
         subtitle="Konten yang terakhir diperbarui"
         action={
-          <a className="text-link" href="/projects">
+          <Link className="text-link" to="/projects">
             Kelola proyek <ChevronRight size={14} />
-          </a>
+          </Link>
         }
       >
         <DataTable
           data={recent}
           columns={tableColumns<ProjectRow>(projectColumns)}
-          emptyLabel="Belum ada proyek."
+          emptyLabel={projects.error ? 'Proyek gagal dimuat.' : 'Belum ada proyek.'}
         />
       </Panel>
+      <div className="insight-grid">
+        <Panel title="Proyek terpopuler" subtitle="Berdasarkan view 30 hari terakhir">
+          <div className="bar-list">
+            {analytics.error ? (
+              <EmptyState
+                icon={<BarChart3 size={19} />}
+                title="Analitik gagal dimuat"
+                description="Coba muat ulang halaman untuk melihat proyek terpopuler."
+              />
+            ) : (
+              topProjects.map((item) => (
+                <div className="bar-row" key={item.slug}>
+                  <span className="bar-label">{item.title}</span>
+                  <span className="bar-track">
+                    <i style={{ width: `${Math.max(6, (item.views / maxTopViews) * 100)}%` }} />
+                  </span>
+                  <b>{item.views.toLocaleString('id-ID')}</b>
+                </div>
+              ))
+            )}
+            {!analytics.error && !topProjects.length && (
+              <EmptyState
+                icon={<BarChart3 size={19} />}
+                title="Belum ada data"
+                description="Proyek paling banyak dilihat akan tampil di sini."
+              />
+            )}
+          </div>
+        </Panel>
+        <Panel title="Status proyek" subtitle="Sebaran dari semua proyek">
+          <div className="bar-list">
+            {analytics.error ? (
+              <EmptyState
+                icon={<FolderKanban size={19} />}
+                title="Status proyek tidak tersedia"
+                description="Coba muat ulang halaman untuk melihat sebaran status."
+              />
+            ) : projects.data?.total === 0 ? (
+              <EmptyState
+                icon={<FolderKanban size={19} />}
+                title="Belum ada proyek"
+                description="Status akan muncul setelah proyek ditambahkan."
+              />
+            ) : (
+              statusBreakdown.map((item) => (
+                <div className="bar-row" key={item.label}>
+                  <span className="bar-label">{item.label}</span>
+                  <span className="bar-track">
+                    <i
+                      className={`tone-${item.tone}`}
+                      style={{
+                        width: `${projects.data?.total ? (item.count / projects.data.total) * 100 : 0}%`,
+                      }}
+                    />
+                  </span>
+                  <b>{item.count}</b>
+                </div>
+              ))
+            )}
+          </div>
+        </Panel>
+        <Panel title="Keahlian per kategori" subtitle={`${skillRows.length} skill terdata`}>
+          <div className="chip-cloud">
+            {skillGroups.map(([category, count]) => (
+              <span className="chip" key={category}>
+                {category} <b>{count}</b>
+              </span>
+            ))}
+            {!skillGroups.length && (
+              <EmptyState
+                icon={<Wrench size={19} />}
+                title={skills.error ? 'Keahlian gagal dimuat' : 'Belum ada keahlian'}
+                description={
+                  skills.error
+                    ? 'Coba muat ulang halaman untuk melihat data keahlian.'
+                    : 'Tambahkan keahlian untuk melihat ringkasannya.'
+                }
+              />
+            )}
+          </div>
+        </Panel>
+        <Panel
+          title="Artikel terbaru"
+          subtitle="Tulisan blog terakhir"
+          action={
+            <Link className="text-link" to="/posts">
+              Semua artikel <ChevronRight size={14} />
+            </Link>
+          }
+        >
+          <div className="activity-list">
+            {postRows.slice(0, 4).map((post) => (
+              <div className="activity-row" key={post.id}>
+                <span className="activity-avatar">
+                  <FileText size={13} />
+                </span>
+                <span className="activity-copy">
+                  <strong>{post.title}</strong>
+                  <small>{post.status === 'PUBLISHED' ? 'Terbit' : 'Draf'}</small>
+                </span>
+                <time>{relativeDate(post.updatedAt)}</time>
+              </div>
+            ))}
+            {!postRows.length && (
+              <EmptyState
+                icon={<FileText size={19} />}
+                title={posts.error ? 'Artikel gagal dimuat' : 'Belum ada artikel'}
+                description={
+                  posts.error
+                    ? 'Coba muat ulang halaman untuk melihat artikel.'
+                    : 'Mulai menulis untuk mengisi blog.'
+                }
+              />
+            )}
+          </div>
+        </Panel>
+      </div>
       <div className="overview-bottom">
         <div className="welcome-strip">
           <span className="welcome-mark">
             <Sparkles size={17} />
           </span>
           <div>
-            <strong>Ruang ide yang siap tumbuh.</strong>
+            <strong>Tulis artikel baru</strong>
             <p>
-              {posts.data?.total ?? 0} artikel blog tersimpan. Tambahkan cerita baru untuk menjaga
-              portfolio tetap hidup.
+              {posts.error
+                ? 'Jumlah artikel belum dapat dimuat.'
+                : `${posts.data?.total ?? 0} artikel tersimpan. Tambahkan tulisan berikutnya saat siap.`}
             </p>
           </div>
-          <a href="/posts" className="text-link">
+          <Link to="/posts" className="text-link">
             Tulis artikel <ChevronRight size={14} />
-          </a>
+          </Link>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -704,6 +844,7 @@ type ProjectFormFields = {
   title: string;
   slug: string;
   summary: string;
+  client: string;
   problem: string;
   solution: string;
   result: string;
@@ -738,6 +879,7 @@ function ProjectForm({
     title: project?.title ?? '',
     slug: project?.slug ?? '',
     summary: project?.summary ?? '',
+    client: project?.client ?? '',
     problem: project?.problem ?? '',
     solution: project?.solution ?? '',
     result: project?.result ?? '',
@@ -775,6 +917,12 @@ function ProjectForm({
             className="span-2"
             {...form.register('summary')}
           />
+          <TextField
+            label="Brand / perusahaan"
+            placeholder="Contoh: Twish Technology"
+            className="span-2"
+            {...form.register('client')}
+          />
         </div>
         <div className="editor-grid">
           <RichEditor
@@ -797,7 +945,7 @@ function ProjectForm({
           <div className="form-grid">
             <TextField
               label="Thumbnail URL"
-              placeholder="https://…"
+              placeholder="https://â€¦"
               {...form.register('thumbnailUrl')}
             />
             <label className="field">
@@ -815,10 +963,10 @@ function ProjectForm({
             </label>
             <TextField
               label="Repository URL"
-              placeholder="https://github.com/…"
+              placeholder="https://github.com/â€¦"
               {...form.register('repoUrl')}
             />
-            <TextField label="Demo URL" placeholder="https://…" {...form.register('demoUrl')} />
+            <TextField label="Demo URL" placeholder="https://â€¦" {...form.register('demoUrl')} />
           </div>
         </Panel>
         <Panel title="Skill yang digunakan" subtitle="Pilih skill yang terhubung dengan project">
@@ -870,7 +1018,7 @@ function ProjectForm({
           </Button>
           <Button disabled={form.formState.isSubmitting}>
             {form.formState.isSubmitting
-              ? 'Menyimpan…'
+              ? 'Menyimpanâ€¦'
               : project
                 ? 'Simpan project'
                 : 'Buat project'}
@@ -913,6 +1061,7 @@ export function ProjectsPage() {
     }
     const normalized = {
       ...values,
+      client: values.client.trim() || null,
       slug: values.slug.trim() || undefined,
       thumbnailUrl,
       repoUrl: values.repoUrl || null,
@@ -1129,7 +1278,7 @@ export function ProjectsPage() {
         <DataTable
           data={visible}
           columns={tableColumns<ProjectRow>(columns)}
-          searchPlaceholder="Cari judul atau slug…"
+          searchPlaceholder="Cari judul atau slugâ€¦"
           emptyLabel="Tidak ada project untuk filter ini."
         />
       </Panel>
@@ -1145,7 +1294,7 @@ export function ProjectsPage() {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Hapus project?"
-        description={`Project “${deleteTarget?.title ?? ''}” akan dihapus permanen.`}
+        description={`Project â€œ${deleteTarget?.title ?? ''}â€ akan dihapus permanen.`}
         onCancel={() => setDeleteTarget(null)}
         onConfirm={() => void remove()}
         busy={deleting}
@@ -1190,7 +1339,7 @@ function SkillForm({
         <TextField label="Kategori" placeholder="Frontend" {...form.register('category')} />
         <div className="form-grid">
           <TextField
-            label="Level (0–100)"
+            label="Level (0â€“100)"
             type="number"
             min={0}
             max={100}
@@ -1210,7 +1359,7 @@ function SkillForm({
             Batal
           </Button>
           <Button disabled={form.formState.isSubmitting}>
-            {form.formState.isSubmitting ? 'Menyimpan…' : 'Simpan skill'}
+            {form.formState.isSubmitting ? 'Menyimpanâ€¦' : 'Simpan skill'}
           </Button>
         </div>
       </form>
@@ -1236,7 +1385,7 @@ export function SkillsPage() {
         header: 'Level',
         cell: (info) =>
           info.getValue() === null ? (
-            '—'
+            'â€”'
           ) : (
             <div className="level-cell">
               <span>
@@ -1246,7 +1395,7 @@ export function SkillsPage() {
             </div>
           ),
       }),
-      column.accessor('icon', { header: 'Ikon', cell: (info) => info.getValue() || '—' }),
+      column.accessor('icon', { header: 'Ikon', cell: (info) => info.getValue() || 'â€”' }),
       column.display({
         id: 'actions',
         header: '',
@@ -1323,7 +1472,7 @@ export function SkillsPage() {
         <DataTable
           data={query.data?.items ?? []}
           columns={tableColumns<SkillRow>(columns)}
-          searchPlaceholder="Cari nama atau kategori…"
+          searchPlaceholder="Cari nama atau kategoriâ€¦"
         />
       </Panel>
       {editor !== undefined && (
@@ -1337,7 +1486,7 @@ export function SkillsPage() {
       <ConfirmDialog
         open={Boolean(removeTarget)}
         title="Hapus skill?"
-        description={`Skill “${removeTarget?.name ?? ''}” akan dihapus.`}
+        description={`Skill â€œ${removeTarget?.name ?? ''}â€ akan dihapus.`}
         onCancel={() => setRemoveTarget(null)}
         onConfirm={() => void remove()}
         busy={busy}
@@ -1441,7 +1590,7 @@ export function ExperiencePage() {
       column.accessor('startDate', {
         header: 'Periode',
         cell: (info) =>
-          `${new Date(info.getValue()).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })} — ${info.row.original.endDate ? new Date(info.row.original.endDate).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }) : 'Sekarang'}`,
+          `${new Date(info.getValue()).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' })} â€” ${info.row.original.endDate ? new Date(info.row.original.endDate).toLocaleDateString('id-ID', { month: 'short', year: 'numeric' }) : 'Sekarang'}`,
       }),
       column.accessor('order', { header: 'Urutan' }),
       column.display({
@@ -1512,7 +1661,7 @@ export function ExperiencePage() {
         <DataTable
           data={query.data?.items ?? []}
           columns={tableColumns<ExperienceRow>(columns)}
-          searchPlaceholder="Cari posisi atau organisasi…"
+          searchPlaceholder="Cari posisi atau organisasiâ€¦"
         />
       </Panel>
       {editor !== undefined && (
@@ -1526,7 +1675,7 @@ export function ExperiencePage() {
       <ConfirmDialog
         open={Boolean(removeTarget)}
         title="Hapus pengalaman?"
-        description={`Entri “${removeTarget?.title ?? ''}” akan dihapus.`}
+        description={`Entri â€œ${removeTarget?.title ?? ''}â€ akan dihapus.`}
         onCancel={() => setRemoveTarget(null)}
         onConfirm={() => void remove()}
         busy={busy}
@@ -1732,7 +1881,7 @@ export function BlogPage() {
         <DataTable
           data={query.data?.items ?? []}
           columns={tableColumns<PostRow>(columns)}
-          searchPlaceholder="Cari judul, tag, atau slug…"
+          searchPlaceholder="Cari judul, tag, atau slugâ€¦"
         />
       </Panel>
       {editor !== undefined && (
@@ -1746,7 +1895,7 @@ export function BlogPage() {
       <ConfirmDialog
         open={Boolean(removeTarget)}
         title="Hapus artikel?"
-        description={`Artikel “${removeTarget?.title ?? ''}” akan dihapus permanen.`}
+        description={`Artikel â€œ${removeTarget?.title ?? ''}â€ akan dihapus permanen.`}
         onCancel={() => setRemoveTarget(null)}
         onConfirm={() => void remove()}
         busy={busy}
@@ -1765,6 +1914,12 @@ type ProfileFormValues = {
   github: string;
   linkedin: string;
   website: string;
+  whatsapp: string;
+  instagram: string;
+  facebook: string;
+  linktree: string;
+  youtube: string;
+  tiktok: string;
 };
 export function ProfilePage() {
   const queryClient = useQueryClient();
@@ -1785,6 +1940,12 @@ export function ProfilePage() {
       github: profile?.socialLinks?.github ?? '',
       linkedin: profile?.socialLinks?.linkedin ?? '',
       website: profile?.socialLinks?.website ?? '',
+      whatsapp: profile?.socialLinks?.whatsapp ?? '',
+      instagram: profile?.socialLinks?.instagram ?? '',
+      facebook: profile?.socialLinks?.facebook ?? '',
+      linktree: profile?.socialLinks?.linktree ?? '',
+      youtube: profile?.socialLinks?.youtube ?? '',
+      tiktok: profile?.socialLinks?.tiktok ?? '',
     },
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
@@ -1816,6 +1977,12 @@ export function ProfilePage() {
           github: values.github,
           linkedin: values.linkedin,
           website: values.website,
+          whatsapp: values.whatsapp,
+          instagram: values.instagram,
+          facebook: values.facebook,
+          linktree: values.linktree,
+          youtube: values.youtube,
+          tiktok: values.tiktok,
         }).filter(([, value]) => value),
       );
       const parsed = ProfilePatchSchema.safeParse({
@@ -1903,6 +2070,42 @@ export function ProfilePage() {
                 placeholder="https://example.com"
                 {...form.register('website')}
               />
+              <TextField
+                label="WhatsApp"
+                type="url"
+                placeholder="https://wa.me/628..."
+                {...form.register('whatsapp')}
+              />
+              <TextField
+                label="Instagram"
+                type="url"
+                placeholder="https://instagram.com/username"
+                {...form.register('instagram')}
+              />
+              <TextField
+                label="Facebook"
+                type="url"
+                placeholder="https://facebook.com/username"
+                {...form.register('facebook')}
+              />
+              <TextField
+                label="Linktree"
+                type="url"
+                placeholder="https://linktr.ee/username"
+                {...form.register('linktree')}
+              />
+              <TextField
+                label="YouTube"
+                type="url"
+                placeholder="https://youtube.com/@username"
+                {...form.register('youtube')}
+              />
+              <TextField
+                label="TikTok"
+                type="url"
+                placeholder="https://tiktok.com/@username"
+                {...form.register('tiktok')}
+              />
             </div>
           </Panel>
         </div>
@@ -1958,7 +2161,7 @@ export function ProfilePage() {
         <div className="profile-save">
           <span>Perubahan akan tampil setelah disimpan.</span>
           <Button disabled={save.isPending}>
-            {save.isPending ? 'Menyimpan…' : 'Simpan profil'}
+            {save.isPending ? 'Menyimpanâ€¦' : 'Simpan profil'}
           </Button>
         </div>
       </form>
@@ -2020,7 +2223,7 @@ export function MediaPage() {
         action={
           <label className={`button button-primary ${uploading ? 'disabled' : ''}`}>
             <Upload size={16} />
-            {uploading ? 'Mengunggah…' : 'Upload media'}
+            {uploading ? 'Mengunggahâ€¦' : 'Upload media'}
             <input
               type="file"
               accept="image/jpeg,image/png,image/webp,image/gif,application/pdf"
@@ -2041,10 +2244,10 @@ export function MediaPage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Cari nama atau URL media…"
+            placeholder="Cari nama atau URL mediaâ€¦"
           />
         </div>
-        <span>{query.data?.total ?? 0} file · maks. 10 MB/file</span>
+        <span>{query.data?.total ?? 0} file Â· maks. 10 MB/file</span>
       </div>
       <div className="media-grid">
         {rows.map((item) => (
@@ -2069,7 +2272,7 @@ export function MediaPage() {
             <div className="media-info">
               <strong title={item.publicId}>{item.publicId.split('/').at(-1)}</strong>
               <span>
-                {(item.size / 1024).toFixed(0)} KB <i>·</i>{' '}
+                {(item.size / 1024).toFixed(0)} KB <i>Â·</i>{' '}
                 {new Date(item.createdAt).toLocaleDateString('id-ID')}
               </span>
               <button
@@ -2101,7 +2304,7 @@ export function MediaPage() {
       <ConfirmDialog
         open={Boolean(removeTarget)}
         title="Hapus media?"
-        description={`“${removeTarget?.publicId ?? ''}” akan dihapus. Media yang terhubung ke galeri proyek perlu dilepas terlebih dahulu.`}
+        description={`â€œ${removeTarget?.publicId ?? ''}â€ akan dihapus. Media yang terhubung ke galeri proyek perlu dilepas terlebih dahulu.`}
         onCancel={() => setRemoveTarget(null)}
         onConfirm={() => void remove()}
         busy={busy}
@@ -2385,7 +2588,7 @@ export function InboxPage() {
         cell: (info) => (
           <div className="cell-stack">
             <strong>{info.getValue()}</strong>
-            <small>{info.row.original.authorRole || '—'}</small>
+            <small>{info.row.original.authorRole || 'â€”'}</small>
           </div>
         ),
       }),
@@ -2552,28 +2755,28 @@ export function InboxPage() {
           <DataTable
             data={messages.data?.items ?? []}
             columns={tableColumns<MessageRow>(messageColumns)}
-            searchPlaceholder="Cari pengirim, email, subjek…"
+            searchPlaceholder="Cari pengirim, email, subjekâ€¦"
             emptyLabel="Belum ada pesan masuk."
           />
         ) : tab === 'guestbook' ? (
           <DataTable
             data={guestbook.data?.items ?? []}
             columns={tableColumns<GuestbookRow>(guestbookColumns)}
-            searchPlaceholder="Cari nama atau pesan…"
+            searchPlaceholder="Cari nama atau pesanâ€¦"
             emptyLabel="Belum ada entri guestbook."
           />
         ) : tab === 'testimonials' ? (
           <DataTable
             data={testimonials.data?.items ?? []}
             columns={tableColumns<TestimonialRow>(testimonialColumns)}
-            searchPlaceholder="Cari penulis atau isi testimoni…"
+            searchPlaceholder="Cari penulis atau isi testimoniâ€¦"
             emptyLabel="Belum ada testimoni."
           />
         ) : (
           <DataTable
             data={subscribers.data?.items ?? []}
             columns={tableColumns<SubscriberRow>(subscriberColumns)}
-            searchPlaceholder="Cari alamat email…"
+            searchPlaceholder="Cari alamat emailâ€¦"
             emptyLabel="Belum ada subscriber."
           />
         )}
@@ -2588,7 +2791,7 @@ export function InboxPage() {
             <strong>{selectedMessage?.name}</strong>
             <span>{selectedMessage?.email}</span>
             <small>
-              {selectedMessage?.subject} ·{' '}
+              {selectedMessage?.subject} Â·{' '}
               {selectedMessage?.createdAt
                 ? new Date(selectedMessage.createdAt).toLocaleString('id-ID')
                 : ''}
@@ -2598,7 +2801,7 @@ export function InboxPage() {
           <TextAreaField
             label="Balasan email"
             rows={6}
-            placeholder="Tulis balasan yang akan dikirim ke pengirim…"
+            placeholder="Tulis balasan yang akan dikirim ke pengirimâ€¦"
             value={replyMessage}
             onChange={(event) => setReplyMessage(event.target.value)}
           />
@@ -2615,7 +2818,7 @@ export function InboxPage() {
       <ConfirmDialog
         open={Boolean(removeTarget)}
         title="Hapus data?"
-        description={`“${removeTarget?.name ?? ''}” akan dihapus permanen.`}
+        description={`â€œ${removeTarget?.name ?? ''}â€ akan dihapus permanen.`}
         onCancel={() => setRemoveTarget(null)}
         onConfirm={() => void remove()}
         busy={busy}
@@ -2772,7 +2975,7 @@ export function SettingsPage() {
             <div className="form-stack">
               <TextField
                 label="Judul situs"
-                placeholder="Rafi Budiansyah — Developer"
+                placeholder="Rafi Budiansyah â€” Developer"
                 {...form.register('siteTitle')}
               />
               <TextAreaField
@@ -2879,7 +3082,7 @@ export function SettingsPage() {
         <div className="settings-save">
           <span>Perubahan disimpan langsung ke SiteSetting di database.</span>
           <Button disabled={save.isPending}>
-            {save.isPending ? 'Menyimpan…' : 'Simpan pengaturan'}
+            {save.isPending ? 'Menyimpanâ€¦' : 'Simpan pengaturan'}
           </Button>
         </div>
       </form>
@@ -2929,7 +3132,7 @@ export function AuditLogsPage() {
       column.accessor('entity', { header: 'Konten' }),
       column.accessor('entityId', {
         header: 'ID entri',
-        cell: (info) => <code className="id-code">{info.getValue() ?? '—'}</code>,
+        cell: (info) => <code className="id-code">{info.getValue() ?? 'â€”'}</code>,
       }),
       column.accessor('meta', {
         header: 'Detail',
@@ -2969,7 +3172,7 @@ export function AuditLogsPage() {
         <DataTable
           data={query.data?.items ?? []}
           columns={tableColumns<AuditRow>(columns)}
-          searchPlaceholder="Cari aksi, entity, atau admin…"
+          searchPlaceholder="Cari aksi, entity, atau adminâ€¦"
         />
       </Panel>
     </>

@@ -1,7 +1,47 @@
 'use client';
 
-import { motion, useReducedMotion } from 'framer-motion';
-import type { ReactNode } from 'react';
+import { useEffect, useRef, type CSSProperties, type ReactNode } from 'react';
+
+function useScrollReveal<T extends HTMLElement>() {
+  const ref = useRef<T>(null);
+
+  useEffect(() => {
+    const element = ref.current;
+    if (!element) return;
+
+    if (
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches ||
+      !('IntersectionObserver' in window)
+    ) {
+      element.classList.add('is-visible');
+      return;
+    }
+
+    document.documentElement.dataset.motionReveal = 'enabled';
+    const reveal = () => element.classList.add('is-visible');
+    const fallback = window.setTimeout(() => {
+      reveal();
+      observer.unobserve(element);
+    }, 1400);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        window.clearTimeout(fallback);
+        reveal();
+        observer.unobserve(element);
+      },
+      { threshold: 0.06, rootMargin: '0px 0px 90px 0px' },
+    );
+    observer.observe(element);
+
+    return () => {
+      window.clearTimeout(fallback);
+      observer.disconnect();
+    };
+  }, []);
+
+  return ref;
+}
 
 export function Reveal({
   children,
@@ -12,32 +52,24 @@ export function Reveal({
   className?: string;
   delay?: number;
 }) {
-  const reduce = useReducedMotion();
+  const ref = useScrollReveal<HTMLDivElement>();
   return (
-    <motion.div
-      className={className}
-      initial={reduce ? false : { opacity: 0, y: 22 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.16 }}
-      transition={{ duration: reduce ? 0 : 0.65, delay, ease: [0.22, 1, 0.36, 1] }}
+    <div
+      ref={ref}
+      className={`scroll-reveal${className ? ` ${className}` : ''}`}
+      style={{ '--reveal-delay': `${delay}ms` } as CSSProperties}
     >
       {children}
-    </motion.div>
+    </div>
   );
 }
 
 export function Stagger({ children, className = '' }: { children: ReactNode; className?: string }) {
-  const reduce = useReducedMotion();
+  const ref = useScrollReveal<HTMLDivElement>();
   return (
-    <motion.div
-      className={className}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.12 }}
-      variants={{ hidden: {}, show: { transition: { staggerChildren: reduce ? 0 : 0.09 } } }}
-    >
+    <div ref={ref} className={`scroll-stagger${className ? ` ${className}` : ''}`}>
       {children}
-    </motion.div>
+    </div>
   );
 }
 
@@ -48,20 +80,5 @@ export function StaggerItem({
   children: ReactNode;
   className?: string;
 }) {
-  const reduce = useReducedMotion();
-  return (
-    <motion.div
-      className={className}
-      variants={
-        reduce
-          ? {}
-          : {
-              hidden: { opacity: 0, y: 18 },
-              show: { opacity: 1, y: 0, transition: { duration: 0.55, ease: [0.22, 1, 0.36, 1] } },
-            }
-      }
-    >
-      {children}
-    </motion.div>
-  );
+  return <div className={`stagger-item${className ? ` ${className}` : ''}`}>{children}</div>;
 }

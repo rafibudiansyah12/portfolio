@@ -197,7 +197,14 @@ export class PublicContentController {
 
   @Get('settings/public')
   async publicSettings() {
-    const allowedKeys = ['site_title', 'seo_description', 'theme', 'features'];
+    const allowedKeys = [
+      'site_title',
+      'seo_description',
+      'theme',
+      'features',
+      'services',
+      'awards',
+    ];
     const settings = await this.prisma.siteSetting.findMany({
       where: { key: { in: allowedKeys } },
       select: { key: true, value: true },

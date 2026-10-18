@@ -6,7 +6,7 @@ const ThemeContext = createContext<ThemeContextValue | null>(null);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const stored = localStorage.getItem('portfolio-admin-theme');
-    return stored === 'light' ? 'light' : 'dark';
+    return stored === 'dark' ? 'dark' : 'light';
   });
   useEffect(() => {
     document.documentElement.dataset.theme = theme;

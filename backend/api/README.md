@@ -10,7 +10,11 @@ NestJS REST API backed by PostgreSQL through Prisma. `GET /api/v1` returns hello
 4. Start the API with `pnpm --filter @portfolio/api dev` and check `http://localhost:3001/api/v1/health`.
 5. Run auth flow tests with `pnpm --filter @portfolio/api test`.
 
+The portfolio assistant uses Cloudflare Workers AI with `@cf/aisingapore/gemma-sea-lion-v4-27b-it`. For the online model, create a Workers AI API token and copy the account ID from the Cloudflare dashboard, then set `CLOUDFLARE_ACCOUNT_ID` and `CLOUDFLARE_API_TOKEN` in `backend/api/.env` or the API deployment environment. Keep both values on the backend. Cloudflare's free allocation is 10,000 Neurons per day; requests fall back to the local portfolio responder when the online service is unavailable or its quota is exhausted.
+
 The seed is safe to rerun for the configured admin email. The password is hashed with Argon2 before it is stored.
+
+For sample portfolio content, review `prisma/sample-content.sql` and run it manually against your database. The examples are drafts and use placeholder copy; replace them with your own content before publishing.
 
 ## Authentication
 
@@ -53,6 +57,12 @@ Additional admin endpoints:
 - `/api/v1/admin/settings`: read/update JSON site settings (ADMIN role only).
 - `/api/v1/admin/audit-logs`: searchable by entity/action and paginated (ADMIN role only).
 - `/api/v1/admin/subscribers`: paginated/searchable list and delete.
+
+Homepage sections use these content sources:
+
+- Work & Experience and Working Tools come from the existing `experiences` and `skills` tables. Add and edit them through the dashboard or the admin API; the homepage hides each section until it has public records.
+- Services and Awards & Certificates are JSON arrays in `site_settings`, under the `services` and `awards` keys. Each entry supports localized `title` and `description` values as `{ "id": "...", "en": "..." }`. Service entries need both fields. Award entries need `title` and `issuer`, and may include `kind` (`award` or `certificate`), `date`, and `url`. The public homepage hides these sections when the arrays are empty.
+- Projects and Blog continue to use the published `projects` and `posts` records. The homepage does not include a guestbook section.
 
 Configure `CLOUDINARY_CLOUD_NAME`, `CLOUDINARY_API_KEY`, and `CLOUDINARY_API_SECRET` for media upload. Configure `RESEND_API_KEY` and a verified `RESEND_FROM_EMAIL` for inbox replies. The API returns a service unavailable response for those integrations until configured.
 

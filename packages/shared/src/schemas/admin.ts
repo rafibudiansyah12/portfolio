@@ -38,6 +38,7 @@ const ProjectCreateBaseSchema = z.object({
     .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)
     .optional(),
   summary: z.string().trim().min(1).max(1000),
+  client: z.string().trim().max(180).nullable().optional(),
   problem: z.string().max(20000),
   solution: z.string().max(20000),
   result: z.string().max(20000),

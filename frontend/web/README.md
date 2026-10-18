@@ -20,7 +20,7 @@ Set `NEXT_PUBLIC_API_URL` to the API base URL (default `http://localhost:3001/ap
 - Localized portfolio: `/id` and `/en`, with about, skills, experience, project search/filter, blog, testimonials, contact, and moderated guestbook.
 - Case studies at `/[locale]/projects/[slug]` and articles at `/[locale]/blog/[slug]`.
 - API data is fetched in Server Components and revalidated by content type. Public submissions use shared Zod schemas and the API's honeypot/rate-limit protections.
-- Theme toggle with persisted accent colors, responsive navigation, Lenis smooth scrolling, GSAP ScrollTrigger, reusable Framer Motion reveal/stagger components, and reduced-motion support.
+- Persisted light/dark theme, responsive ID/EN navigation, and Lenis smooth scrolling (respects reduced-motion preferences).
 - Localized metadata, project/article SEO, `sitemap.xml`, `robots.txt`, and `rss.xml`.
 - Optional SiteSetting-controlled features include command palette (Cmd/Ctrl+K), reduced-motion-aware page transitions and pointer effects, daily anonymous project views, project reactions, realtime guestbook updates, cached GitHub data, newsletter confirmation, dynamic Open Graph images, and a printable CV export.
 

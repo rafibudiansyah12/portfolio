@@ -2,6 +2,8 @@ node_modules
 .turbo
 dist
 .next
+.next-ui-preview
+.vite
 coverage
 .env
 .env.*
